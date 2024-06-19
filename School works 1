@@ -1,0 +1,2911 @@
+accidents.csv.txt
+# Import the csv module so that it can be used
+# to read from the accidents.csv file.
+import csv
+
+
+# Column numbers from the accidents.csv file.
+YEAR_COLUMN = 0
+FATALITIES_COLUMN = 1
+INJURIES_COLUMN = 2
+CRASHES_COLUMN = 3
+FATAL_CRASHES_COLUMN = 4
+DISTRACT_COLUMN = 5
+PHONE_COLUMN = 6
+SPEED_COLUMN = 7
+DUI_COLUMN = 8
+FATIGUE_COLUMN = 9
+
+
+def main():
+    try:
+    # Prompt the user for a filename and open that text file.
+        filename = input("Name of file that contains NHTSA data: ")
+        with open(filename, "rt") as text_file:
+
+        # Prompt the user for a percentage.
+            perc_reduc = float(input(
+            "Percent reduction of texting while driving [0, 100]: "))
+
+        print()
+        print(f"With a {perc_reduc}% reduction in using a cell",
+            "phone while driving, approximately the",
+            "following number of injuries and deaths",
+            "would have been prevented in the USA.", sep="\n")
+        print()
+        print("Year, Injuries, Deaths")
+
+        # Use the csv module to create a reader
+        # object that will read from the opened file.
+        reader = csv.reader(text_file)
+
+        # The first line of the CSV file contains column headings
+        # and not a student's I-Number and name, so this statement
+        # skips the first line of the CSV file.
+        next(reader)
+
+        # Process each row in the CSV file.
+        for row in reader:
+            year = row[YEAR_COLUMN]
+
+            # Call the estimate_reduction function.
+            injur, fatal = estimate_reduction(
+                    row, PHONE_COLUMN, perc_reduc)
+
+            # Print the estimated reductions
+            # in injuries and fatalities.
+            print(year, injur, fatal, sep=", ")
+    except FileNotFoundError as not_found_err:
+        #This code will be executed if the user enters 
+        #a file name that doesn't exist.
+        print()
+        print(not_found_err)
+        print("Please choose a different file")
+         # except FileNotFoundError as not_found_err:
+        #print(not_found_err)
+        #print("Please choose a different file.")
+
+    except ValueError as val_err:
+        print(val_err)
+        print("value Error: could not convert string to float:")
+        #except ValueError as val_err:
+        #print("Error:", val_err)
+
+    except (csv.Error, KeyError) as error:
+        #This code will be excuted if there is an error 
+        #raised by the csv model
+        print()
+        print(f" CSV Error:line {reader.line_num} of {text_file.name}" 
+              "is formtted correctly.")
+        #except (csv.Error, KeyError) as error:
+        #print(f"Error: line {reader.line_num} of {infile.name}"
+               # " is formatted incorrectly.")
+        
+    except ZeroDivisionError as zero_div_err:
+        #exept executed if someone tries to divide by zero.
+        print()
+        print(f"zeroError:line {reader.line_num}of {text_file.name}"
+              "contains 0 in the FatalCrashes or Cell phone use")
+        #except ZeroDivisionError as zero_div_err:
+        #print(f"Error: line {reader.line_num} of {infile.name}"
+        #        " contains 0 in the 'Fatal Crashes' or"
+        #        "'Cell Phone Use' column.")
+
+def estimate_reduction(row, behavior_key, perc_reduc):
+    """Estimate and return the number of injuries and deaths that
+    would not have occurred on U.S. roads and highways if drivers
+    had reduced a dangerous behavior by a given percentage.
+
+    Parameters
+        row: a CSV row of data from the U.S. National Highway Traffic
+            Safety Administration (NHTSA)
+        behavior_key: heading from the CSV file for the dangerous
+            behavior that drivers could reduce
+        perc_reduc: percent that drivers could reduce a dangerous
+            behavior
+    Return: The number of injuries and deaths that may have been
+        prevented
+    """
+    behavior = int(row[behavior_key])
+    fatal_crashes = int(row[FATAL_CRASHES_COLUMN])
+    ratio = perc_reduc / 100 * behavior / fatal_crashes
+
+    fatalities = int(row[FATALITIES_COLUMN])
+    injuries = int(row[INJURIES_COLUMN])
+
+    reduc_fatal = int(round(fatalities * ratio, 0))
+    reduc_injur = int(round(injuries * ratio, 0))
+    return reduc_injur, reduc_fatal
+
+
+# If this file was executed like this:
+# > python accidents.py
+# then call the main function. However, if this file
+# was simply imported, then skip the call to main.
+if __name__ == "__main__":
+    main()
+
+add_area_code.py
+#phone numbers from a text file and adds the area code "208-" to 
+#all phone numbers that don’t have an area code.
+def main():
+    try:
+        # Open the file phone_numbers.txt for reading and read all
+        # of the phone numbers into a list named phone_numbers.
+        phone_numbers = read_list("phone_numbers.txt")
+
+        # Some of the phone numbers in phone_numbers.txt do not start
+        # with an area code. Replace each short phone number with a
+        # phone number that begins with the area code "208-" To do this,
+        # call the map function and pass the add_area_code function and
+        # the list of phone numbers as arguments to the map function.
+    #Created the map function called new_numbers and had it equal a new list, map function
+        #iterate through the list. 
+        new_numbers= list(map(add_area_code,phone_numbers ))
+        # Print the list with the corrected phone numbers.
+        print(new_numbers)
+
+    except FileNotFoundError as not_found_err:
+        print(type(not_found_err).__name__, not_found_err, sep=": ")
+
+
+def add_area_code(phone_number):
+    """Phone numbers in the U.S. are often stored as ten digits and
+    two dashes in this format: "ddd-ddd-dddd" where each d is a digit.
+    If the length of phone_number is less than 12 characters, add the
+    area code "208-" at the beginning of phone_number and return
+    phone_number.
+
+    Parameter phone_number: a string of digits formatted as
+        "ddd-dddd" or "ddd-ddd-dddd"
+    Return: a string of digits formated as "ddd-ddd-dddd"
+    """
+    #At line 32, write code that checks if the length of a phone number is less than 12 
+    #and if the length is less than 12 then adds the area code "208-" at the beginning of the phone number.
+    if len(phone_number) < 12:
+        phone_number= "208-"+ phone_number
+    return phone_number
+        
+
+
+
+
+def read_list(filename):
+    """Read the contents of a text file into a list and
+    return the list. Each element in the list will contain
+    one line of text from the text file.
+
+    Parameter filename: the name of the text file to read
+    Return: a list of strings
+    """
+    # Create an empty list named text_list.
+    text_list = []
+
+    # Open the text file for reading and store a reference
+    # to the opened file in a variable named text_file.
+    with open(filename, "rt") as text_file:
+
+        # Read the contents of the text
+        # file one line at a time.
+        for line in text_file:
+
+            # Remove white space, if there is any,
+            # from the beginning and end of the line.
+            clean_line = line.strip()
+
+            # Append the clean line of text
+            # onto the end of the list.
+            text_list.append(clean_line)
+
+    # Return the list that contains the lines of text.
+    return text_list
+
+
+# If this file is executed like this:
+# > python add_area_code.py
+# then call the main function. However, if this file is simply
+# imported (e.g. into a test file), then skip the call to main.
+if __name__ == "__main__":
+    main()
+
+address.py
+#phone numbers from a text file and adds the area code "208-" to 
+#all phone numbers that don’t have an area code.
+def main():
+    try:
+        # Open the file phone_numbers.txt for reading and read all
+        # of the phone numbers into a list named phone_numbers.
+        phone_numbers = read_list("phone_numbers.txt")
+
+        # Some of the phone numbers in phone_numbers.txt do not start
+        # with an area code. Replace each short phone number with a
+        # phone number that begins with the area code "208-" To do this,
+        # call the map function and pass the add_area_code function and
+        # the list of phone numbers as arguments to the map function.
+    #Created the map function called new_numbers and had it equal a new list, map function
+        #iterate through the list. 
+        new_numbers= list(map(add_area_code,phone_numbers ))
+        # Print the list with the corrected phone numbers.
+        print(new_numbers)
+
+    except FileNotFoundError as not_found_err:
+        print(type(not_found_err).__name__, not_found_err, sep=": ")
+
+
+def add_area_code(phone_number):
+    """Phone numbers in the U.S. are often stored as ten digits and
+    two dashes in this format: "ddd-ddd-dddd" where each d is a digit.
+    If the length of phone_number is less than 12 characters, add the
+    area code "208-" at the beginning of phone_number and return
+    phone_number.
+
+    Parameter phone_number: a string of digits formatted as
+        "ddd-dddd" or "ddd-ddd-dddd"
+    Return: a string of digits formated as "ddd-ddd-dddd"
+    """
+    #At line 32, write code that checks if the length of a phone number is less than 12 
+    #and if the length is less than 12 then adds the area code "208-" at the beginning of the phone number.
+    if len(phone_number) < 12:
+        phone_number= "208-"+ phone_number
+    return phone_number
+        
+
+
+
+
+def read_list(filename):
+    """Read the contents of a text file into a list and
+    return the list. Each element in the list will contain
+    one line of text from the text file.
+
+    Parameter filename: the name of the text file to read
+    Return: a list of strings
+    """
+    # Create an empty list named text_list.
+    text_list = []
+
+    # Open the text file for reading and store a reference
+    # to the opened file in a variable named text_file.
+    with open(filename, "rt") as text_file:
+
+        # Read the contents of the text
+        # file one line at a time.
+        for line in text_file:
+
+            # Remove white space, if there is any,
+            # from the beginning and end of the line.
+            clean_line = line.strip()
+
+            # Append the clean line of text
+            # onto the end of the list.
+            text_list.append(clean_line)
+
+    # Return the list that contains the lines of text.
+    return text_list
+
+
+# If this file is executed like this:
+# > python add_area_code.py
+# then call the main function. However, if this file is simply
+# imported (e.g. into a test file), then skip the call to main.
+if __name__ == "__main__":
+    main()
+
+boxes.py
+#program that asks the user for  two intgers:
+#the number of manufactured items
+#the number of items that the user will pack per box 
+#program must compute and print the number of boxes necessary to hold the items. 
+#This must be a whole number. 
+#Note that the last box may be packed with fewer items than the other boxes.
+
+#ill need math to do calculations so impoting
+import math
+
+ #function that starts the program   
+def main():
+    #we need two user inputs the amount of items we need to pack and how many per box. 
+    user_box_per_pack = int(input("Please enter the number of items to pack:"))
+    user_box_item_per_pack= int(input("How many items will we pack per box:"))
+    #We need to create a formula to determine the number of items per box and round it. 
+    calculation_for_box = math.ceil(user_box_per_pack / user_box_item_per_pack)
+    #print the user info, then the total of boxes needed. 
+    print("The amount of items we need to pack is",user_box_per_pack)
+    print ("The amount of boxes we need to fit the items in:", user_box_item_per_pack)
+    print("The amount of things to put per box then will be:",calculation_for_box)
+
+
+#call the main function
+if __name__ == "__main__":
+    main()
+
+#Teachers example:
+    # Copyright 2020, Brigham Young University-Idaho. All rights reserved.
+
+"""
+A manufacturing company needs a program that will help its employees
+pack manufactured items into boxes for shipping. Write a Python
+program named boxes.py that asks the user for two integers:  1) the
+number of manufactured items and 2) the number of items that the user
+will pack per box. Your program must compute and print the number of
+boxes necessary to hold the items. This must be a whole number. Note
+that the last box may be packed with fewer items than the other boxes.
+"""
+
+# Import the math module so that we can call the math.ceil function.
+import math
+
+# Get two numbers from the user.
+num_items = int(input(f"Enter the number of items: "))
+items_per_box = int(input(f"Enter the number of items per box: "))
+
+# Compute the number of boxes by dividing
+# and then calling the math.ceil function.
+num_boxes = math.ceil(num_items / items_per_box)
+
+# Display a blank line.
+print()
+
+# Display the results for the user to see.
+print(f"For {num_items} items, packing {items_per_box}"
+    f" items in each box, you will need {num_boxes} boxes.")
+
+cansizes_two.py
+#First got to import math
+import math 
+
+#define main
+def main():
+    name = "#1 Picnic"
+    radius = 6.83
+    height = 10.16
+    volume = compute_volume(radius, height)
+    surf_area = compute_surface_area(radius, height)
+    storage_efficiency = volume / surf_area
+    print(f"{name} {storage_efficiency:.2f}")
+
+    name = "#1 Tall"
+    radius = 7.78
+    height = 11.91
+    volume = compute_volume(radius, height)
+    surf_area = compute_surface_area(radius, height)
+    storage_efficiency = volume / surf_area
+    print(f"{name} {storage_efficiency:.2f}")
+
+    name = "#2"
+    radius = 8.73
+    height = 11.59
+    volume = compute_volume(radius, height)
+    surf_area = compute_surface_area(radius, height)
+    storage_efficiency = volume / surf_area
+    print(f"{name} {storage_efficiency:.2f}")
+
+    name = "#2.5"
+    radius = 10.32
+    height = 11.91
+    volume = compute_volume(radius, height)
+    surf_area = compute_surface_area(radius, height)
+    storage_efficiency = volume / surf_area
+    print(f"{name} {storage_efficiency:.2f}")
+
+    name = "#3 Cylinder"
+    radius = 10.79
+    height = 17.78
+    volume = compute_volume(radius, height)
+    surf_area = compute_surface_area(radius, height)
+    storage_efficiency = volume / surf_area
+    print(f"{name} {storage_efficiency:.2f}")
+
+    name = "#5"
+    radius = 13.02
+    height = 14.29
+    volume = compute_volume(radius, height)
+    surf_area = compute_surface_area(radius, height)
+    storage_efficiency = volume / surf_area
+    print(f"{name} {storage_efficiency:.2f}")
+
+    name = "#6Z"
+    radius = 5.4
+    height = 8.89
+    volume = compute_volume(radius, height)
+    surf_area = compute_surface_area(radius, height)
+    storage_efficiency = volume / surf_area
+    print(f"{name} {storage_efficiency:.2f}")
+
+    name = "#8Z short"
+    radius = 6.83
+    height = 7.62
+    volume = compute_volume(radius, height)
+    surf_area = compute_surface_area(radius, height)
+    storage_efficiency = volume / surf_area
+    print(f"{name} {storage_efficiency:.2f}")
+
+    name = "#10"
+    radius = 15.72
+    height = 17.78
+    volume = compute_volume(radius, height)
+    surf_area = compute_surface_area(radius, height)
+    storage_efficiency = volume / surf_area
+    print(f"{name} {storage_efficiency:.2f}")
+
+    name = "#211"
+    radius = 6.83
+    height = 12.38
+    volume = compute_volume(radius, height)
+    surf_area = compute_surface_area(radius, height)
+    storage_efficiency = volume / surf_area
+    print(f"{name} {storage_efficiency:.2f}")
+
+    name = "#300"
+    radius = 7.62
+    height = 11.27
+    volume = compute_volume(radius, height)
+    surf_area = compute_surface_area(radius, height)
+    storage_efficiency = volume / surf_area
+    print(f"{name} {storage_efficiency:.2f}")
+
+    name = "#303"
+    radius = 8.1
+    height = 11.11
+    volume = compute_volume(radius, height)
+    surf_area = compute_surface_area(radius, height)
+    storage_efficiency = volume / surf_area
+    print(f"{name} {storage_efficiency:.2f}")
+
+
+#define volume
+def compute_volume (radius,height):
+#the math to compute volume
+   volume = math.pi * radius**2 *height
+   return volume
+
+
+#def surface_area
+def compute_surface_area(radius,height):
+#Math for the surface area
+   can_area = 2 * math.pi * radius * (radius + height)
+   return can_area
+
+
+main()
+
+# Import the math
+import math
+
+# Define Main for the program to add all functions together
+def main():
+    # Cans info to call
+    can_data = [
+        ["#1 Picnic", 0.83, 10.16, 0.28],
+        ["#1 Tall", 7.78, 11.91, 0.43],
+        ["#2", 8.73, 11.59, 0.45],
+        ["#2.5", 10.32, 11.91, 0.61],
+        ["#3 Cylinder", 10.79, 17.78, 0.86],
+        ["#5", 13.02, 14.29, 0.83],
+        ["#6Z", 5.40, 8.89, 0.22],
+        ["#8Z short", 6.83, 7.62, 0.26],
+        ["#10", 15.72, 17.78, 1.53],
+        ["#211", 6.83, 12.38, 0.34],
+        ["#300", 7.62, 11.27, 0.38],
+        ["#303", 8.10, 11.11, 0.42]
+    ]
+
+    for can_info in can_data:
+        can_name, radius, height, cost = can_info
+
+        print(f"Can: {can_name}, Radius: {radius}, Height: {height}, Cost: {cost}")
+
+        # Calculate and print Storage Efficiency
+        print(f"Storage Efficiency: {storage_efficiency(radius, height)}")
+
+        # Calculate and print Cost Efficiency
+        print(f"Cost Efficiency: {compute_cost_efficiency(radius, height, cost)}\n")
+
+
+def storage_efficiency(radius, height):
+    # Calculate the amount of storage efficiency
+    storage_efficiency = round(compute_volume(radius, height) / compute_surface_area(radius, height), 2)
+    return storage_efficiency
+
+
+def compute_cost_efficiency(radius, height, cost):
+    # Calculate the cost efficiency of each can
+    cost_efficiency = round(compute_volume(radius, height) / cost, 2)
+    return cost_efficiency
+
+
+# Function for the volume of the can
+def compute_volume(radius, height):
+    # The equation to find the volume
+    volume = math.pi * radius**2 * height
+    return volume
+
+
+# Function to calculate the surface area of the can
+def compute_surface_area(radius, height):
+    # The equation to find the surface area
+    surface_area = 2 * math.pi * radius * (radius + height)
+    return surface_area
+
+
+main()
+
+can_sizes.py
+#Import the math
+import math
+#Define Main for program to add all functions together 
+
+    
+
+def storage_efficiency (radius,height):
+    #calculate the amount of storage effiency
+    storage_efficiency =  math.round(compute_volume(radius,height) / compute_surface_area(radius,height))
+    return storage_efficiency
+def compute_cost_effiency(volume,):
+    #calculate the cost of each bottle
+    cost_of_cans= volume/cost_of_cans
+    return cost_of_cans
+
+# function for the volume of the can
+def compute_volume(radius,height):
+    # the equation to find the volume
+    volume =math.pi *radius**2 *height
+    return volume 
+
+#function to calculate the surface area of the can
+def compute_surface_area(radius, height):
+    #the equation to find the surface area
+    surface_area= 2 *math.pi*radius(radius * height)
+    return surface_area
+def compute_cost_efficiency(radius, height,cost):
+    cost_of_can = compute_volume(radius, height)* cost
+    return cost 
+def main():
+    #cans info to call 
+    can_name = [
+        ["#1 Picnic", 0.83, 10.16, 0.28],
+        ["#1 Tall", 7.78, 11.91, 0.43],
+        ["#2", 8.73, 11.59, 0.45],
+        ["#2.5", 10.32, 11.91, 0.61],
+        ["#3 Cylinder", 10.79, 17.78, 0.86],
+        ["#5", 13.02, 14.29, 0.83],
+        ["#6Z", 5.40, 8.89, 0.22],
+        ["#8Z short", 6.83, 7.62, 0.26],
+        ["#10", 15.72, 17.78, 1.53],
+        ["#211", 6.83, 12.38, 0.34],
+        ["#300", 7.62, 11.27, 0.38],
+        ["#303", 8.10, 11.11, 0.42]
+    ]
+    
+    for can in can_name:
+        can=can[1], can[2],can[3], can [4],can[5],can[6], can[7]
+        can= can[8], can[9],can[10],can[10],can[11],can[12]
+        print(f"Can: {can[0]}, Radius: {radius}, Height: {height}, Cost: {cost}")
+        
+        # Calculate and print Storage Efficiency
+        print(f"Storage Efficiency: {storage_efficiency(radius, height)}")
+        
+        # Calculate and print Cost Efficiency
+        print(f"Cost Efficiency: {compute_cost_efficiency(radius, height, cost)}\n")
+
+main()
+
+chemistry.py
+
+#import the parse_forumla from the formula file 
+from formula import parse_formula
+
+#this assignment is about making a molar mass calculator
+#I will need math
+import math 
+
+#I need to make two functions the first of which is  make_periodic_table
+def make_periodic_table():
+    #Edited from list to dictionary
+    # Create a dictionary to represent the periodic table
+    periodic_table_dict = {
+        "Ac": ["Actinium", 227],
+        "Ag": ["Silver", 107.8682],
+        "Al": ["Aluminum", 26.9815386],
+        "Ar": ["Argon", 39.948],
+        "As": ["Arsenic", 74.9216],
+        "At": ["Astatine", 210],
+        "Au": ["Gold", 196.966569],
+        "B": ["Boron", 10.811],
+        "Ba": ["Barium", 137.327],
+        "Be": ["Beryllium", 9.012182],
+        "Bi": ["Bismuth", 208.9804],
+        "Br": ["Bromine", 79.904],
+        "C": ["Carbon", 12.0107],
+        "Ca": ["Calcium", 40.078],
+        "Cd": ["Cadmium", 112.411],
+        "Ce": ["Cerium", 140.116],
+        "Cl": ["Chlorine", 35.453],
+        "Co": ["Cobalt", 58.933195],
+        "Cr": ["Chromium", 51.9961],
+        "Cs": ["Cesium", 132.9054519],
+        "Cu": ["Copper", 63.546],
+        "Dy": ["Dysprosium", 162.5],
+        "Er": ["Erbium", 167.259],
+        "Eu": ["Europium", 151.964],
+        "F": ["Fluorine", 18.9984032],
+        "Fe": ["Iron", 55.845],
+        "Fr": ["Francium", 223],
+        "Ga": ["Gallium", 69.723],
+        "Gd": ["Gadolinium", 157.25],
+        "Ge": ["Germanium", 72.64],
+        "H": ["Hydrogen", 1.00794],
+        "He": ["Helium", 4.002602],
+        "Hf": ["Hafnium", 178.49],
+        "Hg": ["Mercury", 200.59],
+        "Ho": ["Holmium", 164.93032],
+        "I": ["Iodine", 126.90447],
+        "In": ["Indium", 114.818],
+        "Ir": ["Iridium", 192.217],
+        "K": ["Potassium", 39.0983],
+        "Kr": ["Krypton", 83.798],
+        "La": ["Lanthanum", 138.90547],
+        "Li": ["Lithium", 6.941],
+        "Lu": ["Lutetium", 174.9668],
+        "Mg": ["Magnesium", 24.305],
+        "Mn": ["Manganese", 54.938045],
+        "Mo": ["Molybdenum", 95.96],
+        "N": ["Nitrogen", 14.0067],
+        "Na": ["Sodium", 22.98976928],
+        "Nb": ["Niobium", 92.90638],
+        "Nd": ["Neodymium", 144.242],
+        "Ne": ["Neon", 20.1797],
+        "Ni": ["Nickel", 58.6934],
+        "Np": ["Neptunium", 237],
+        "O": ["Oxygen", 15.9994],
+        "Os": ["Osmium", 190.23],
+        "P": ["Phosphorus", 30.973762],
+        "Pa": ["Protactinium", 231.03588],
+        "Pb": ["Lead", 207.2],
+        "Pd": ["Palladium", 106.42],
+        "Pm": ["Promethium", 145],
+        "Po": ["Polonium", 209],
+        "Pr": ["Praseodymium", 140.90765],
+        "Pt": ["Platinum", 195.084],
+        "Pu": ["Plutonium", 244],
+        "Ra": ["Radium", 226],
+        "Rb": ["Rubidium", 85.4678],
+        "Re": ["Rhenium", 186.207],
+        "Rh": ["Rhodium", 102.9055],
+        "Rn": ["Radon", 222],
+        "Ru": ["Ruthenium", 101.07],
+        "S": ["Sulfur", 32.065],
+        "Sb": ["Antimony", 121.76],
+        "Sc": ["Scandium", 44.955912],
+        "Se": ["Selenium", 78.96],
+        "Si": ["Silicon", 28.0855],
+        "Sm": ["Samarium", 150.36],
+        "Sn": ["Tin", 118.71],
+        "Sr": ["Strontium", 87.62],
+        "Ta": ["Tantalum", 180.94788],
+        "Tb": ["Terbium", 158.92535],
+        "Tc": ["Technetium", 98],
+        "Te": ["Tellurium", 127.6],
+        "Th": ["Thorium", 232.03806],
+        "Ti": ["Titanium", 47.867],
+        "Tl": ["Thallium", 204.3833],
+        "Tm": ["Thulium", 168.93421],
+        "U": ["Uranium", 238.02891],
+        "V": ["Vanadium", 50.9415],
+        "W": ["Tungsten", 183.84],
+        "Xe": ["Xenon", 131.293],
+        "Y": ["Yttrium", 88.90585],
+        "Yb": ["Ytterbium", 173.054],
+        "Zn": ["Zinc", 65.38],
+        "Zr": ["Zirconium", 91.224]
+    } 
+    return periodic_table_dict
+#add another funtion for our new list 
+def make_known_molecules_dict():
+#Add second list that shows chemical formulas and their names
+    known_molecules_dict = {
+        "Al2O3": ["aluminum oxide"],
+        "CH3OH": ["methanol"],
+        "C2H6O": ["ethanol"],
+        "C2H5OH":[ "ethanol"],
+        "C3H8O": ["isopropyl alcohol"],
+        "C3H8": ["propane"],
+        "C4H10":[ "butane"],
+        "C6H6": ["benzene"],
+        "C6H14":[ "hexane"],
+        "C8H18":[ "octane"],
+        "CH3(CH2)6CH3": ["octane"],
+        "C13H18O2": ["ibuprofen"],
+        "C13H16N2O2": ["melatonin"],
+        "Fe2O3": ["iron oxide"],
+        "FeS2": ["iron pyrite"],
+        "H2O":  ["water"]
+       
+    }  
+    return known_molecules_dict
+
+
+# Testing the function
+periodic_table = make_periodic_table()
+print(periodic_table["H"])  # Output: ['Hydrogen', 1.00794]
+
+#def main():
+#    #call the make_periodic_table function
+#    table= make_periodic_table()
+#    first_element=table[0]
+#    #retrieve one of the symbol list
+#    
+#    #retrieve list for names
+#    names_of_index=first_element[1]
+#    atomic_info=first_element[2]
+#    print(f"names of elements {names_of_index}")
+#    print(f"atomic mass elements:{atomic_info}")
+#    for elements in table:
+#         names=elements[1]
+#         atomic=elements[2]
+#         print (f"The name of the element {names}")
+#         print (f"The atomic mass of element {atomic}")
+#
+# Indexes for inner lists in the periodic table
+NAME_INDEX = 0
+ATOMIC_MASS_INDEX = 1
+
+# Indexes for inner lists in a symbol_quantity_list
+SYMBOL_INDEX = 0
+QUANTITY_INDEX = 1
+
+
+def compute_molar_mass(symbol_quantity_list, periodic_table_dict):
+    """Compute and return the total molar mass of all the
+    elements listed in symbol_quantity_list.
+
+    Parameters
+        symbol_quantity_list is a compound list returned
+            from the parse_formula function. Each small
+            list in symbol_quantity_list has this form:
+            ["symbol", quantity].
+        periodic_table_dict is the compound dictionary
+            returned from make_periodic_table.
+    Return: the total molar mass of all the elements in
+        symbol_quantity_list.
+
+    For example, if symbol_quantity_list is [["H", 2], ["O", 1]],
+    this function will calculate and return
+    atomic_mass("H") * 2 + atomic_mass("O") * 1
+    1.00794 * 2 + 15.9994 * 1
+    18.01528
+    """
+    # Do the following for each inner list in the
+    # compound symbol_quantity_list:
+        # Separate the inner list into symbol and quantity.
+        # Get the atomic mass for the symbol from the dictionary.
+        # Multiply the atomic mass by the quantity.
+        # Add the product into the total molar mass.
+
+    # Return the total molar mass.
+    #innerlist in coumpound list 
+    total_molar_mass = 0
+    for symbol, quantity in symbol_quantity_list:
+        if symbol in periodic_table_dict: #get symbol from the dictionary
+            atomic_mass = periodic_table_dict[symbol][ATOMIC_MASS_INDEX]#Get the atomic mass from dictionary
+            total_molar_mass += atomic_mass * quantity#Calculate the total molar mass 
+        else:
+            print(f"Not correct input, please add {symbol} from the periodic table.")#if the user puts in the wrong input
+    return total_molar_mass #return the total mass back to the main function
+
+
+
+
+def main():
+    # Get a chemical formula for a molecule from the user.
+    chemical_formula=input("Please enter the chemical formula for a molecule:")
+    # Get the mass of a chemical sample in grams from the user.
+    mass=float(input("Please enter the mass of a chemical sample in grams:"))
+    # Call the make_periodic_table function and
+    # store the periodic table in a variable.
+    periodic=make_periodic_table()
+    #call the known molecules dictionary
+    molecules=make_known_molecules_dict()
+    # Call the parse_formula function to convert the
+    # chemical formula given by the user to a compound
+    # list that stores element symbols and the quantity
+    # of atoms of each element in the molecule.
+    parse=parse_formula(chemical_formula,periodic)
+    #the formula name in the known molecules dic
+    formula=get_formula_name(chemical_formula,molecules)
+    protons=sum_protons(parse, periodic)
+    # Call the compute_molar_mass function to compute the
+    # molar mass of the molecule from the compound list.
+    compute=compute_molar_mass(parse,periodic)
+     # Compute the number of moles in the sample.
+    
+    moles= mass/compute
+    # Print the molar mass.
+    print(f"The molar mass:{compute}")
+    # Print the number of moles.
+    print(f"The number of moles:{moles:.5f}")
+    #print the formula name
+    print(f"Formula name for chemical:{formula}")
+    #print the sum of protons
+    print(f"Number of protons:{protons}")
+
+def get_formula_name(formula, known_molecules_dict):
+    """Try to find formula in the known_molecules_dict.
+    If formula is in the known_molecules_dict, return
+    the name of the chemical formula; otherwise return
+    "unknown compound".
+
+    Parameters
+        formula is a string that contains a chemical formula
+        known_molecules_dict is a dictionary that contains
+            known chemical formulas and their names
+    Return: the name of a chemical formula
+    """
+    #find out if there is a formula in known molecules dic
+    if formula in known_molecules_dict:
+        #find the formula in the list
+        chemical_formula=known_molecules_dict[formula]
+        return chemical_formula
+    else:
+        return("unknown compound")
+
+
+
+
+def sum_protons(symbol_quantity_list, periodic_table_dict):
+    """Compute and return the total number of protons in
+    all the elements listed in symbol_quantity_list.
+
+    Parameters
+        symbol_quantity_list is a compound list returned
+            from the parse_formula function. Each small
+            list in symbol_quantity_list has this form:
+            ["symbol", quantity].
+        periodic_table_dict is the compound dictionary
+            returned from make_periodic_table.
+    Return: the total number of protons of all
+        the elements in symbol_quantity_list.
+    """ 
+    total_number_protons=0
+    for symbol,quantity in symbol_quantity_list:
+       if symbol in periodic_table_dict:
+           atomic_mass = periodic_table_dict[symbol][ATOMIC_MASS_INDEX]#Get the atomic mass from dictionary
+           total_number_protons += atomic_mass * quantity 
+       else:
+            print(f"Not correct input, please add {symbol} from the periodic table.")
+    return total_number_protons
+       
+    
+#starts the program 
+if __name__ =="__main__":
+    main()
+
+cities.txt
+Accra
+61, 4200000
+
+compute_age.py
+# Import datetime so that it can be
+# used to compute a person's age.
+from datetime import datetime
+
+
+def main():
+    # Get the user's gender, birthdate, height, and weight.
+
+    # Call the compute_age, kg_from_lb, cm_from_in,
+    # body_mass_index, and basal_metabolic_rate functions
+    # as needed.
+
+    # Print the results for the user to see.
+    gender= input("Enter your Gender (M or F:)")
+    pounds = float(input("Please input weight in pounds:"))
+    inches = float(input ("Please in put your height in inches:"))
+    birth_str= input("Enter your birthday (YYYY-MM-DD):")
+
+    years = compute_age(birth_str)
+    weight= kg_from_lb(pounds)
+    height=cm_from_in (inches)
+    bmi = body_mass_index(weight, height)
+    bmr = basal_metabolic_rate(gender, weight, height,years)
+
+    print (f"Age: {years}")
+    print (f"Weight (kg):{weight:.2f}")
+    print(f"Height (cm): {height:.1f}")
+    print (f"BMI: {bmi:.2f}")
+    print (f"BMR: {bmr:.0f}")
+
+
+def compute_age(birth_str):
+    """Compute and return a person's age in years.
+    Parameter birth_str: a person's birthdate stored
+        as a string in this format: YYYY-MM-DD
+    Return: a person's age in years.
+    """
+    # Convert a person's birthdate from a string
+    # to a date object.
+    birthdate = datetime.strptime(birth_str, "%Y-%m-%d")
+    today = datetime.now()
+
+    # Compute the difference between today and the
+    # person's birthdate in years.
+    years = today.year - birthdate.year
+
+    # If necessary, subtract one from the difference.
+    if birthdate.month > today.month or \
+        (birthdate.month == today.month and \
+            birthdate.day > today.day):
+        years -= 1
+
+    return years
+
+
+def kg_from_lb(pounds):
+    """Convert a mass in pounds to kilograms.
+    Parameter pounds: a mass in U.S. pounds.
+    Return: the mass in kilograms.
+    """
+    weight = pounds/ 2.205
+    return weight
+
+
+def cm_from_in(inches):
+    """Convert a length in inches to centimeters.
+    Parameter inches: a length in inches.
+    Return: the length in centimeters.
+    """
+    height = inches *2.54
+    return height 
+
+
+def body_mass_index(weight, height):
+    """Compute and return a person's body mass index.
+    Parameters
+        weight: a person's weight in kilograms.
+        height: a person's height in centimeters.
+    Return: a person's body mass index.
+    """
+    bmi= (1000* weight) / height **2
+    return bmi 
+
+
+def basal_metabolic_rate(gender, weight, height, age):
+    """Compute and return a person's basal metabolic rate.
+    Parameters
+        weight: a person's weight in kilograms.
+        height: a person's height in centimeters.
+        age: a person's age in years.
+    Return: a person's basal metabolic rate in kcals per day.
+    """
+    if gender == "M":
+        bmr =88.362 + (13.397 * weight) + (4.779 * height) - (5.677 * age)
+    elif gender =="F":
+        bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age)
+    else:
+        print ("Bad input use M or F")
+    return bmr
+
+
+# Call the main function so that
+# this program will start executing.
+
+main()
+cone_volume.py
+"""Compute and print the volume of a right circular cone."""
+
+# Import the standard math module so that
+# math.pi can be used in this program.
+import math
+
+
+def main():
+    # Call the cone_volume function to compute
+    # the volume of an example cone.
+    ex_radius = 2.8
+    ex_height = 3.2
+    ex_vol = cone_volume(ex_radius,ex_height)
+
+    # Print several lines that describe this program.
+    print("This program computes the volume of a right")
+    print("circular cone. For example, if the radius of a")
+    print(f"cone is {ex_radius} and the height is {ex_height}")
+    print(f"then the volume is {ex_vol:.1f}")
+    print()
+
+    # Get the radius and height of the cone from the user.
+    radius = float(input("Please enter the radius of the cone: "))
+    height = float(input("Please enter the height of the cone: "))
+
+    # Call the cone_volume function to compute the volume
+    # for the radius and height that came from the user.
+    vol = cone_volume(height, radius)
+
+    # Print the radius, height, and
+    # volume for the user to see.
+    print(f"Radius: {radius}")
+    print(f"Height: {height}")
+    print(f"Volume: {vol:.1f}")
+
+
+def cone_volume(height,radius):
+    """Compute and return the volume of a right circular cone."""
+    volume = math.pi * radius**2 * height / 3
+    return volume
+
+
+# Start this program by
+# calling the main function.
+main()
+
+count_marriages.py
+def count_marriages(marriages_dict, people_dict):
+    # Dictionary to store the count of marriages for each person
+    marriage_counts = {}
+
+    # Initialize the count for each person to 0
+    for person_key, person_info in people_dict:
+        person_name=person_info[NAME_INDEX]
+        marriage_counts[person_key] = 0
+
+    # Iterate over each marriage
+    for marriage_key, marriage_details in marriages_dict.items():
+        husband_key = marriage_details[HUSBAND_KEY_INDEX]
+        wife_key = marriage_details[WIFE_KEY_INDEX]
+
+        # Increment the count for the husband and wife in the marriage_counts dictionary
+        marriage_counts[people_dict[husband_key][NAME_INDEX]] += 1
+        marriage_counts[people_dict[wife_key][NAME_INDEX]] += 1
+
+    # Print the number of marriages for each person
+    for person_name, num_marriages in marriage_counts.items():
+        print(f"Person {person_name} had {num_marriages} marriages.")
+discount.py
+
+# We need to import the date 
+from datetime import datetime 
+
+#get the date
+date=datetime.now()
+weekday = date.weekday()
+print (weekday)
+
+#Defining calculation formula 
+
+def calculate_discount (subtotal): 
+    if weekday in [1,2] and subtotal >= 50:
+        return subtotal * .10
+    else:
+        return 0
+#Stretch 
+def calculate_difference (subtotal):
+        if weekday in [1,2] and subtotal <= 50:
+            lacking=50-subtotal
+            print (f"To guaratee the discount you need {lacking:.02f} more to get the discount.")
+            return lacking 
+#Sales tax calculation 
+def calculate_sales_tax(subtotal):
+    return subtotal *.06
+#Calculate totla
+def calculate_total(subtotal, discount,sales_tax):
+     return subtotal-discount + sales_tax
+
+subtotal = float(input("Please enter your subtotal: $"))
+
+discount = calculate_discount(subtotal)
+
+sales_tax = calculate_sales_tax(subtotal)
+
+total = calculate_total(subtotal, discount, sales_tax)
+
+if discount > 0:
+    print(f"Discount amount: ${discount:.2f}")
+    print(f"Sales tax: ${sales_tax:.2f}")
+    print(f"Total: ${total:.2f}")
+
+def non_discount_days(subtotal, sales_tax):
+    total_without_discount = subtotal + sales_tax
+    print(f"Your total  will be {total_without_discount}")
+
+no_discount_days = calculate_difference(subtotal)
+
+if no_discount_days > 0:
+    print(f"Sales tax: ${sales_tax:.2f}")
+    print(f"Total: ${total:.2f}")
+
+esteem.py
+
+#Program to determine the self-esteem of users 
+#We will need input from users to determine their score 
+#ask the user to respond to each of the ten statements with D, d, a, or A 
+#which mean strongly disagree, disagree, agree, and strongly agree. 
+print("""This program is an implementation of the Rosenberg
+Self-Esteem Scale. This program will show you ten
+statements that you could possibly apply to yourself.
+Please rate how much you agree with each of the
+statements by responding with one of these four letters:")
+print("Which means Strongly disagree, agree, and strongly agree.""")
+print("""D means you strongly disagree with the statement.
+d means you disagree with the statement.
+a means you agree with the statement.
+A means you strongly agree with the statement.""")
+
+# need input statements to have user add info
+def main():
+    #input statements 
+    score=0
+    
+    user_question1=(input("""1. I feel that I am a person of worth, at least on an
+equal plane with others.
+    Enter D, d, a, or A:"""))
+    score += for_positive(user_question1)
+    user_question2=(input("""2. I feel that I have a number of good qualities.
+    Enter D, d, a, or A:"""))
+    score += for_positive(user_question2)
+    user_question3=(input("""3. All in all, I am inclined to feel that I am a failure.
+   Enter D, d, a, or A:"""))
+    score += for_negative(user_question3)
+    user_question4=(input("""4. I am able to do things as well as most other people.
+   Enter D, d, a, or A:"""))
+    score += for_positive(user_question4)
+    user_question5=(input("""5. I feel I do not have much to be proud of.
+   Enter D, d, a, or A:"""))
+    score += for_negative(user_question5)
+    user_question6=(input("""6. I take a positive attitude toward myself.
+   Enter D, d, a, or A:"""))
+    score += for_positive(user_question6)
+    user_question7=(input("""7. On the whole, I am satisfied with myself.
+   Enter D, d, a, or A:"""))
+    score += for_positive(user_question7)
+    user_question8=(input("""8. I wish I could have more respect for myself.
+    Enter D, d, a, or A:"""))
+    score += for_negative(user_question8)
+    user_question9=(input("""9. I certainly feel useless at times.
+   Enter D, d, a, or A:"""))
+    score +=for_negative(user_question9)
+    user_question10=(input("""10. At times I think I am no good at all.
+   Enter D, d, a, or A:"""))
+    score += for_negative(user_question10)
+    #Need to figure out how to give a score to each positve and negative response
+    
+    #print the full score 
+    #and what being below 15 means 
+   
+    print()
+    print(f"Your score is {score}.")
+    print("A score below 15 may indicate problematic low self-esteem.")
+    
+  #Alright I need to now be able to add up all the letters and assign points   
+def for_positive (response):
+    #need an if. elif. else statement about what to do for each letter 
+    if response == "D":
+        return 0
+    elif response == "d":
+       return 1
+    elif response == "a":
+       return 2
+    elif response == "A":
+       return 3
+    else:
+       print("Invalid response")
+       return
+def for_negative(response):
+    #Now I need statements for the negative responses 
+   if response == "D":
+        return 3
+   elif response == "d":
+       return 2
+   elif response == "a":
+       return 1
+   elif response == "A":
+       return 0
+   else:
+      print ("invalid response")
+
+
+if __name__ == "__main__":
+    main()
+
+example.py
+# Copyright 2020, Brigham Young University-Idaho. All rights reserved.
+
+def main():
+    print("This program computes the fuel efficiency")
+    print("of your vehicle in miles per gallon.")
+
+    prev_odom = float(input("Enter the previous odometer reading in miles: "))
+    curr_odom = float(input("Enter the current odometer reading in miles: "))
+    fuel_amount = float(input("Enter the amount of fuel in U.S. gallons: "))
+
+    efficiency = miles_per_gallon( prev_odom, curr_odom, fuel_amount)
+
+    print(f"{efficiency} miles per gallon")
+
+
+def miles_per_gallon(start_miles, end_miles, amount_gallons):
+    """Compute and return the average number of miles
+    that a vehicle traveled per gallon of fuel.
+
+    Parameters
+        start_miles: An odometer value in miles.
+        end_miles: Another odometer value in miles.
+        amount_gallons: A fuel amount in U.S. gallons.
+    Return: Fuel efficiency in miles per gallon.
+    """
+    distance = end_miles - start_miles
+    mpg = distance / amount_gallons
+    return mpg
+
+
+# If this file was executed like this:
+# > python example.py
+# then call the main function. However, if this file
+# was simply imported, then skip the call to main.
+if __name__ == "__main__":
+    main()
+
+family_history.py
+# Copyright 2020, Brigham Young University-Idaho. All rights reserved.
+
+# Each value in the people dictionary is a list. These
+# are the indexes of the elements in those lists.
+NAME_INDEX = 0
+GENDER_INDEX = 1
+BIRTH_YEAR_INDEX = 2
+DEATH_YEAR_INDEX = 3
+
+# Each value in the marriages dictionary is a list.
+# These are the indexes of the elements in those lists.
+HUSBAND_KEY_INDEX = 0
+WIFE_KEY_INDEX = 1
+WEDDING_YEAR_INDEX = 2
+
+
+def main():
+    people_dict = {
+        # Each item in the people dictionary is a key value pair.
+        # Each key is a unique identifier that begins with the
+        # letter "P". Each value is a list of data about a person.
+        # Each item in the dictionary is in this format:
+        # person_key: [name, gender, birth_year, death_year]
+        "P143": ["Lola Park", "F", 1663, 1706],
+        "P338": ["Savanna Foster", "F", 1674, 1723],
+        "P201": ["Tiffany Hughes", "F", 1689, 1747],
+        "P203": ["Ignacio Torres", "M", 1693, 1758],
+        "P128": ["Yasmin Li", "F", 1701, 1716],
+        "P342": ["Trent Ross", "M", 1705, 1757],
+        "P202": ["Samyukta Nguyen", "M", 1717, 1774],
+        "P132": ["Joel Johnson", "M", 1724, 1800],
+        "P445": ["Whitney Nelson", "F", 1757, 1823],
+        "P318": ["Khalid Ali", "M", 1759, 1814],
+        "P317": ["Davina Patel", "F", 1775, 1860],
+        "P313": ["Enzo Ruiz", "M", 1782, 1782],
+        "P475": ["Lauren Smith", "F", 1800, 1802],
+        "P455": ["Lucas Ross", "M", 1800, 1853],
+        "P435": ["Jamal Gray", "M", 1810, 1831],
+        "P204": ["Fatima Soares", "F", 1812, 1898],
+        "P206": ["Ephraim Foster", "M", 1831, 1885],
+        "P500": ["Peter Price", "M", 1832, 1878],
+        "P207": ["Rosalina Jimenez", "F", 1875, 1956],
+        "P425": ["Rachel Johnson", "F", 1876, 1940],
+        "P121": ["Vanessa Bennet", "F", 1880, 1960],
+        "P152": ["Jose Castillo", "M", 1884, 1931],
+        "P205": ["Liam Myers", "M", 1902, 1950],
+        "P465": ["Isabella Lopez", "F", 1907, 1959],
+        "P168": ["Megan Anderson", "F", 1909, 1945]
+    }
+
+    marriages_dict = {
+        # Each item in the marriages dictionary is a key value pair.
+        # Each key is a unique identifier that begins with the
+        # letter "M". Each value is a list of data about a marriage.
+        # Each item in the dictionary is in this format:
+        # marriage_key: [husband_key, wife_key, wedding_year]
+        "M48": ["P203", "P201", 1711],
+        "M45": ["P342", "P338", 1722],
+        "M36": ["P203", "P201", 1724],
+        "M47": ["P202", "P445", 1774],
+        "M21": ["P132", "P445", 1775],
+        "M59": ["P132", "P317", 1792],
+        "M63": ["P318", "P445", 1804],
+        "M12": ["P318", "P317", 1808],
+        "M54": ["P435", "P204", 1830],
+        "M34": ["P455", "P204", 1853],
+        "M55": ["P500", "P317", 1859],
+        "M52": ["P206", "P204", 1875],
+        "M78": ["P152", "P121", 1905],
+        "M50": ["P152", "P425", 1917],
+        "M64": ["P205", "P465", 1925],
+        "M62": ["P152", "P207", 1925],
+        "M70": ["P152", "P168", 1928]
+    }
+
+    # Call the print_death_age function to print
+    # each person's name and age at death.
+    print_death_age(people_dict)
+
+    # Print a blank line.
+    print()
+
+    # Call the count_genders function to count
+    # and print the number of males and females.
+    count_genders(people_dict)
+
+    # Print a blank line.
+    print()
+
+    # Call the print_marriages function to print
+    # human readable data about the marriages.
+    print_marriages(marriages_dict, people_dict)
+
+
+def print_death_age(people_dict):
+    """For each person in the people dictionary,
+    print the person's name and age at death.
+
+    Parameter
+        people_dict: a dictionary that contains data about people
+            Each item in the dictionary is in this format:
+            person_key: [name, gender, birth_year, death_year]
+    Return: nothing
+    """
+    print("Ages at Death")
+
+    # For each person in the people dictionary, do the following:
+    for person_key, person_list in people_dict.items():
+        # Get the person's name, birth year, and death year.
+        name = person_list[NAME_INDEX]
+        birth_year = person_list[BIRTH_YEAR_INDEX]
+        death_year = person_list[DEATH_YEAR_INDEX]
+
+        # Compute the person's age at death.
+        death_age = death_year - birth_year
+
+        # Print the data about the person for the user to see.
+        print(name, death_age)
+
+
+def count_genders(people_dict):
+    """Count and print the number of males
+    and females in the people dictionary.
+
+    Parameter
+        people_dict: a dictionary that contains data about people
+            Each item in the dictionary is in this format:
+            person_key: [name, gender, birth_year, death_year]
+    Return: nothing
+    """
+    num_males = 0
+    for person_key, person_list in people_dict.items():
+        gender = person_list[GENDER_INDEX]
+        if gender == "M":
+            num_males += 1
+
+    num_people = len(people_dict)
+    num_females = num_people - num_males
+
+    print("Genders")
+    print(f"Number of males: {num_males}")
+    print(f"Number of females: {num_females}")
+
+
+def print_marriages(marriages_dict, people_dict):
+    """For each marriage in the marriages dictionary, print
+    the husband's name, his age at wedding, the wedding year,
+    the wife's name, and her age at wedding.
+
+    Parameters
+        marriages_dict: a dictionary that contains data about
+            marriages. Each item in the dictionary is in this format:
+            marriage_key: [husband_key, wife_key, wedding_year]
+        people_dict: a dictionary that contains data about people
+            Each item in the dictionary is in this format:
+            person_key: [name, gender, birth_year, death_year]
+    Return: nothing
+    """
+    print("Marriages")
+
+    # For each marriage in the marriage dictionary, do the following:
+    for marriage_key, marriage_list in marriages_dict.items():
+
+        # Get the husband person key, wife person
+        # key, and year they were married.
+        husband_key = marriage_list[HUSBAND_KEY_INDEX]
+        wife_key = marriage_list[WIFE_KEY_INDEX]
+        wedding_year = marriage_list[WEDDING_YEAR_INDEX]
+
+        # Use the husband person key to get the husband's
+        # data from the people dictionary and then get the
+        # husband's name and birth year from his data.
+        husband_list = people_dict[husband_key]
+        husband_name = husband_list[NAME_INDEX]
+        husband_birth = husband_list[BIRTH_YEAR_INDEX]
+
+        # Calculate the husband's age when he married.
+        husband_age = wedding_year - husband_birth
+
+        # Use the wife person key to get the wife's data
+        # from the people dictionary and then get the
+        # wife's name and birth year from her data.
+        wife_list = people_dict[wife_key]
+        wife_name = wife_list[NAME_INDEX]
+        wife_birth = wife_list[BIRTH_YEAR_INDEX]
+
+        # Calculate the wife's age when she married.
+        wife_age = wedding_year - wife_birth
+
+        # Print the data about the marriage for the user to see.
+        print(f"{husband_name} {husband_age}" \
+            f" > {wedding_year} < {wife_name} {wife_age}")
+
+
+# If this file was executed like this:
+# > python teach_solution.py
+# then call the main function. However, if this file
+# was simply imported, then skip the call to main.
+if __name__ == "__main__":
+    main()
+
+family_history_stretch.py
+# Copyright 2020, Brigham Young University-Idaho. All rights reserved.
+
+# Each value in the people dictionary is a list. These
+# are the indexes of the elements in those lists.
+NAME_INDEX = 0
+GENDER_INDEX = 1
+BIRTH_YEAR_INDEX = 2
+DEATH_YEAR_INDEX = 3
+
+# Each value in the marriages dictionary is a list.
+# These are the indexes of the elements in those lists.
+HUSBAND_KEY_INDEX = 0
+WIFE_KEY_INDEX = 1
+WEDDING_YEAR_INDEX = 2
+
+
+def main():
+    people_dict = {
+        # Each item in the people dictionary is a key value pair.
+        # Each key is a unique identifier that begins with the
+        # letter "P". Each value is a list of data about a person.
+        # Each item in the dictionary is in this format:
+        # person_key: [name, gender, birth_year, death_year]
+        "P143": ["Lola Park", "F", 1663, 1706],
+        "P338": ["Savanna Foster", "F", 1674, 1723],
+        "P201": ["Tiffany Hughes", "F", 1689, 1747],
+        "P203": ["Ignacio Torres", "M", 1693, 1758],
+        "P128": ["Yasmin Li", "F", 1701, 1716],
+        "P342": ["Trent Ross", "M", 1705, 1757],
+        "P202": ["Samyukta Nguyen", "M", 1717, 1774],
+        "P132": ["Joel Johnson", "M", 1724, 1800],
+        "P445": ["Whitney Nelson", "F", 1757, 1823],
+        "P318": ["Khalid Ali", "M", 1759, 1814],
+        "P317": ["Davina Patel", "F", 1775, 1860],
+        "P313": ["Enzo Ruiz", "M", 1782, 1782],
+        "P475": ["Lauren Smith", "F", 1800, 1802],
+        "P455": ["Lucas Ross", "M", 1800, 1853],
+        "P435": ["Jamal Gray", "M", 1810, 1831],
+        "P204": ["Fatima Soares", "F", 1812, 1898],
+        "P206": ["Ephraim Foster", "M", 1831, 1885],
+        "P500": ["Peter Price", "M", 1832, 1878],
+        "P207": ["Rosalina Jimenez", "F", 1875, 1956],
+        "P425": ["Rachel Johnson", "F", 1876, 1940],
+        "P121": ["Vanessa Bennet", "F", 1880, 1960],
+        "P152": ["Jose Castillo", "M", 1884, 1931],
+        "P205": ["Liam Myers", "M", 1902, 1950],
+        "P465": ["Isabella Lopez", "F", 1907, 1959],
+        "P168": ["Megan Anderson", "F", 1909, 1945]
+    }
+
+    marriages_dict = {
+        # Each item in the marriages dictionary is a key value pair.
+        # Each key is a unique identifier that begins with the
+        # letter "M". Each value is a list of data about a marriage.
+        # Each item in the dictionary is in this format:
+        # marriage_key: [husband_key, wife_key, wedding_year]
+        "M48": ["P203", "P201", 1711],
+        "M45": ["P342", "P338", 1722],
+        "M36": ["P203", "P201", 1724],
+        "M47": ["P202", "P445", 1774],
+        "M21": ["P132", "P445", 1775],
+        "M59": ["P132", "P317", 1792],
+        "M63": ["P318", "P445", 1804],
+        "M12": ["P318", "P317", 1808],
+        "M54": ["P435", "P204", 1830],
+        "M34": ["P455", "P204", 1853],
+        "M55": ["P500", "P317", 1859],
+        "M52": ["P206", "P204", 1875],
+        "M78": ["P152", "P121", 1905],
+        "M50": ["P152", "P425", 1917],
+        "M64": ["P205", "P465", 1925],
+        "M62": ["P152", "P207", 1925],
+        "M70": ["P152", "P168", 1928]
+    }
+
+    # Call the print_death_age function to print
+    # each person's name and age at death.
+    print_death_age(people_dict)
+
+    # Print a blank line.
+    print()
+
+    # Call the count_genders function to count
+    # and print the number of males and females.
+    count_genders(people_dict)
+
+    # Print a blank line.
+    print()
+
+    # Call the print_marriages function to print
+    # human readable data about the marriages.
+    print_marriages(marriages_dict, people_dict)
+
+    # Print a blank line.
+    print()
+
+    count_marriages(marriages_dict, people_dict)
+
+
+def print_death_age(people_dict):
+    """For each person in the people dictionary,
+    print the person's name and age at death.
+
+    Parameter
+        people_dict: a dictionary that contains data about people
+            Each item in the dictionary is in this format:
+            person_key: [name, gender, birth_year, death_year]
+    Return: nothing
+    """
+    print("Ages at Death")
+
+    # For each person in the people dictionary, do the following:
+    for person_key, person_list in people_dict.items():
+        # Get the person's name, birth year, and death year.
+        name = person_list[NAME_INDEX]
+        birth_year = person_list[BIRTH_YEAR_INDEX]
+        death_year = person_list[DEATH_YEAR_INDEX]
+
+        # Compute the person's age at death.
+        death_age = death_year - birth_year
+
+        # Print the data about the person for the user to see.
+        print(name, birth_year, death_year, death_age)
+
+
+def count_genders(people_dict):
+    """Count and print the number of males
+    and females in the people dictionary.
+
+    Parameter
+        people_dict: a dictionary that contains data about people
+            Each item in the dictionary is in this format:
+            person_key: [name, gender, birth_year, death_year]
+    Return: nothing
+    """
+    num_males = 0
+    for person_key, person_list in people_dict.items():
+        gender = person_list[GENDER_INDEX]
+        if gender == "M":
+            num_males += 1
+
+    num_people = len(people_dict)
+    num_females = num_people - num_males
+
+    print("Genders")
+    print(f"Number of males: {num_males}")
+    print(f"Number of females: {num_females}")
+
+
+def print_marriages(marriages_dict, people_dict):
+    """For each marriage in the marriages dictionary, print
+    the husband's name, his age at wedding, the wedding year,
+    the wife's name, and her age at wedding.
+
+    Parameters
+        marriages_dict: a dictionary that contains data about
+            marriages. Each item in the dictionary is in this format:
+            marriage_key: [husband_key, wife_key, wedding_year]
+        people_dict: a dictionary that contains data about people
+            Each item in the dictionary is in this format:
+            person_key: [name, gender, birth_year, death_year]
+    Return: nothing
+    """
+    print("Marriages")
+
+    # For each marriage in the marriage dictionary, do the following:
+    for marriage_key, marriage_list in marriages_dict.items():
+
+        # Get the husband person key, wife person
+        # key, and year they were married.
+        husband_key = marriage_list[HUSBAND_KEY_INDEX]
+        wife_key = marriage_list[WIFE_KEY_INDEX]
+        wedding_year = marriage_list[WEDDING_YEAR_INDEX]
+
+        # Use the husband person key to get the husband's
+        # data from the people dictionary and then get the
+        # husband's name and birth year from his data.
+        husband_list = people_dict[husband_key]
+        husband_name = husband_list[NAME_INDEX]
+        husband_birth = husband_list[BIRTH_YEAR_INDEX]
+
+        # Calculate the husband's age when he married.
+        husband_age = wedding_year - husband_birth
+
+        # Use the wife person key to get the wife's data
+        # from the people dictionary and then get the
+        # wife's name and birth year from her data.
+        wife_list = people_dict[wife_key]
+        wife_name = wife_list[NAME_INDEX]
+        wife_birth = wife_list[BIRTH_YEAR_INDEX]
+
+        # Calculate the wife's age when she married.
+        wife_age = wedding_year - wife_birth
+
+        # Print the data about the marriage for the user to see.
+        print(f"{husband_name} {husband_age}" \
+            f" > {wedding_year} < {wife_name} {wife_age}")
+
+
+def count_marriages(marriages_dict, people_dict):
+    """Count and print the number of times that each person married.
+
+    Parameters
+        marriages_dict: a dictionary that contains data about
+            marriages. Each item in the dictionary is in this format:
+            marriage_key: [husband_key, wife_key, wedding_year]
+        people_dict: a dictionary that contains data about people
+            Each item in the dictionary is in this format:
+            person_key: [name, gender, birth_year, death_year]
+    Return: nothing
+    """
+    print("Number of Marriages")
+
+    NUM_MARRIAGES_INDEX = 4
+
+    # Add an extra variable to each person_list. The variable will
+    # be used to count the number of marriages that each person had.
+    for person_key, person_list in people_dict.items():
+        person_list.append(0)
+
+    # For each marriage in the marriage dictionary,
+    # add one to the husband's number of marriages
+    # and add one to the wife's number of marriages.
+    for marriage_key, marriage_list in marriages_dict.items():
+
+        # Get the husband person key and the wife person key.
+        husband_key = marriage_list[HUSBAND_KEY_INDEX]
+        wife_key = marriage_list[WIFE_KEY_INDEX]
+
+        # Add one to the number of times
+        # the husband has been married.
+        husband_list = people_dict[husband_key]
+        husband_list[NUM_MARRIAGES_INDEX] += 1
+
+        # Add one to the number of times
+        # the wife has been married.
+        wife_list = people_dict[wife_key]
+        wife_list[NUM_MARRIAGES_INDEX] += 1
+
+    # For each person in the people dictionary, print the
+    # person's name and number of times that person married.
+    for person_key, person_list in people_dict.items():
+        name = person_list[NAME_INDEX]
+        num_marriages = person_list[NUM_MARRIAGES_INDEX]
+        print(name, num_marriages)
+
+
+# If this file was executed like this:
+# > python teach_solution.py
+# then call the main function. However, if this file
+# was simply imported, then skip the call to main.
+if __name__ == "__main__":
+    main()
+family_history.py
+#To determine what age they are need math so importing it is neccessary 
+import math
+# Each value in the people dictionary is a list. These
+# are the indexes of the elements in those lists.
+NAME_INDEX = 0
+GENDER_INDEX = 1
+BIRTH_YEAR_INDEX = 2
+DEATH_YEAR_INDEX = 3
+
+# Each value in the marriages dictionary is a list.
+# These are the indexes of the elements in those lists.
+HUSBAND_KEY_INDEX = 0
+WIFE_KEY_INDEX = 1
+WEDDING_YEAR_INDEX = 2
+
+
+def main():
+    people_dict = {
+        # Each item in the people dictionary is a key value pair.
+        # Each key is a unique identifier that begins with the
+        # letter "P". Each value is a list of data about a person.
+        # Each item in the dictionary is in this format:
+        # person_key: [name, gender, birth_year, death_year]
+        "P143": ["Lola Park", "F", 1663, 1706],
+        "P338": ["Savanna Foster", "F", 1674, 1723],
+        "P201": ["Tiffany Hughes", "F", 1689, 1747],
+        "P203": ["Ignacio Torres", "M", 1693, 1758],
+        "P128": ["Yasmin Li", "F", 1701, 1716],
+        "P342": ["Trent Ross", "M", 1705, 1757],
+        "P202": ["Samyukta Nguyen", "M", 1717, 1774],
+        "P132": ["Joel Johnson", "M", 1724, 1800],
+        "P445": ["Whitney Nelson", "F", 1757, 1823],
+        "P318": ["Khalid Ali", "M", 1759, 1814],
+        "P317": ["Davina Patel", "F", 1775, 1860],
+        "P313": ["Enzo Ruiz", "M", 1782, 1782],
+        "P475": ["Lauren Smith", "F", 1800, 1802],
+        "P455": ["Lucas Ross", "M", 1800, 1853],
+        "P435": ["Jamal Gray", "M", 1810, 1831],
+        "P204": ["Fatima Soares", "F", 1812, 1898],
+        "P206": ["Ephraim Foster", "M", 1831, 1885],
+        "P500": ["Peter Price", "M", 1832, 1878],
+        "P207": ["Rosalina Jimenez", "F", 1875, 1956],
+        "P425": ["Rachel Johnson", "F", 1876, 1940],
+        "P121": ["Vanessa Bennet", "F", 1880, 1960],
+        "P152": ["Jose Castillo", "M", 1884, 1931],
+        "P205": ["Liam Myers", "M", 1902, 1950],
+        "P465": ["Isabella Lopez", "F", 1907, 1959],
+        "P168": ["Megan Anderson", "F", 1909, 1945]
+    }
+
+    marriages_dict = {
+        # Each item in the marriages dictionary is a key value pair.
+        # Each key is a unique identifier that begins with the
+        # letter "M". Each value is a list of data about a marriage.
+        # Each item in the dictionary is in this format:
+        # marriage_key: [husband_key, wife_key, wedding_year]
+        "M48": ["P203", "P201", 1711],
+        "M45": ["P342", "P338", 1722],
+        "M36": ["P203", "P201", 1724],
+        "M47": ["P202", "P445", 1774],
+        "M21": ["P132", "P445", 1775],
+        "M59": ["P132", "P317", 1792],
+        "M63": ["P318", "P445", 1804],
+        "M12": ["P318", "P317", 1808],
+        "M54": ["P435", "P204", 1830],
+        "M34": ["P455", "P204", 1853],
+        "M55": ["P500", "P317", 1859],
+        "M52": ["P206", "P204", 1875],
+        "M78": ["P152", "P121", 1905],
+        "M50": ["P152", "P425", 1917],
+        "M64": ["P205", "P465", 1925],
+        "M62": ["P152", "P207", 1925],
+        "M70": ["P152", "P168", 1928]
+    }
+
+    # Call the print_death_age function to print
+    # each person's name and age at death.
+    print_death_age(people_dict)
+
+    # Print a blank line.
+    print()
+
+    # Call the count_genders function to count
+    # and print the number of males and females.
+    count_genders(people_dict)
+
+    # Print a blank line.
+    print()
+
+    # Call the print_marriages function to print
+    # human readable data about the marriages.
+    print_marriages(marriages_dict, people_dict)
+    print()
+#put the people variable outside the function and age function
+#Call the count function 
+    count_marriages(marriages_dict, people_dict)
+
+def print_death_age(people_dict):
+    """For each person in the people dictionary,
+    print the person's name and age at death.
+
+    Parameter
+        people_dict: a dictionary that contains data about people
+            Each item in the dictionary is in this format:
+            person_key: [name, gender, birth_year, death_year]
+    Return: nothing
+    """
+    for people_info, people_details in people_dict.items():
+        name=people_details[NAME_INDEX]
+        birth_year=people_details[BIRTH_YEAR_INDEX]
+        death_year=people_details[DEATH_YEAR_INDEX]
+        calculate_age= death_year-birth_year
+        print (f"{name}, Age at death:{calculate_age}, {birth_year}-{death_year}")
+        
+
+def count_genders(people_dict):
+    """Count and print the number of males
+    and females in the people dictionary.
+
+    Parameter
+        people_dict: a dictionary that contains data about people
+            Each item in the dictionary is in this format:
+            person_key: [name, gender, birth_year, death_year]
+    Return: nothing
+    """
+    num_of_Females=0
+    num_of_males=0
+    for people_key, people_info in people_dict.items():
+        gender = people_info[GENDER_INDEX] 
+        if gender=="F":
+          num_of_Females +=1  
+      
+    
+    num_of_total_people= len(people_dict)
+    num_of_males=num_of_total_people - num_of_Females
+    print("Genders")
+    print(f"Number of males:{num_of_males} Number of Females:{num_of_Females}")
+
+
+def print_marriages(marriages_dict, people_dict):
+    """For each marriage in the marriages dictionary, print
+    the husband's name, his age at wedding, the wedding year,
+    the wife's name, and her age at wedding.
+
+    Parameters
+        marriages_dict: a dictionary that contains data about
+            marriages. Each item in the dictionary is in this format:
+            marriage_key: [husband_key, wife_key, wedding_year]
+        people_dict: a dictionary that contains data about people
+            Each item in the dictionary is in this format:
+            person_key: [name, gender, birth_year, death_year]
+    Return: nothing
+    """
+    for marriage_key, marriage_list in marriages_dict.items():
+
+        # Get the husband person key, wife person
+        # key, and year they were married.
+        husband_key = marriage_list[HUSBAND_KEY_INDEX]
+        wife_key = marriage_list[WIFE_KEY_INDEX]
+        wedding_year = marriage_list[WEDDING_YEAR_INDEX]
+
+        # Use the husband person key to get the husband's
+        # data from the people dictionary and then get the
+        # husband's name and birth year from his data.
+        husband_list = people_dict[husband_key]
+        husband_name = husband_list[NAME_INDEX]
+        husband_birth = husband_list[BIRTH_YEAR_INDEX]
+
+        # Calculate the husband's age when he married.
+        husband_age = wedding_year - husband_birth
+
+        # Use the wife person key to get the wife's data
+        # from the people dictionary and then get the
+        # wife's name and birth year from her data.
+        wife_list = people_dict[wife_key]
+        wife_name = wife_list[NAME_INDEX]
+        wife_birth = wife_list[BIRTH_YEAR_INDEX]
+
+        # Calculate the wife's age when she married.
+        wife_age = wedding_year - wife_birth
+
+        # Print the data about the marriage for the user to see.
+        print(f"{husband_name} {husband_age} &" 
+            f" {wife_name} {wife_age}, Wedding Year{wedding_year}")
+#Add to your program a function named count_marriages that counts and prints the number of 
+#marriages that each person had in his or her lifetime. 
+#According to the data, who married the most times?
+#Counting the number of Marriages each individual had 
+def count_marriages(marriage_dict,people_dict):
+    """Count and print the number of times that each person married.
+
+    Parameters
+        marriages_dict: a dictionary that contains data about
+            marriages. Each item in the dictionary is in this format:
+            marriage_key: [husband_key, wife_key, wedding_year]
+        people_dict: a dictionary that contains data about people
+            Each item in the dictionary is in this format:
+            person_key: [name, gender, birth_year, death_year]
+    Return: nothing
+    """
+   def count_marriages(marriages_dict, people_dict):
+    """Count and print the number of times that each person married.
+
+    Parameters
+        marriages_dict: a dictionary that contains data about
+            marriages. Each item in the dictionary is in this format:
+            marriage_key: [husband_key, wife_key, wedding_year]
+        people_dict: a dictionary that contains data about people
+            Each item in the dictionary is in this format:
+            person_key: [name, gender, birth_year, death_year]
+    Return: nothing
+    """
+    print("Number of Marriages")
+
+    NUM_MARRIAGES_INDEX = 4
+
+    # Add an extra variable to each person_list. The variable will
+    # be used to count the number of marriages that each person had.
+    for person_key, person_list in people_dict.items():
+        person_list.append(0)
+
+    # For each marriage in the marriage dictionary,
+    # add one to the husband's number of marriages
+    # and add one to the wife's number of marriages.
+    for marriage_key, marriage_list in marriages_dict.items():
+
+        # Get the husband person key and the wife person key.
+        husband_key = marriage_list[HUSBAND_KEY_INDEX]
+        wife_key = marriage_list[WIFE_KEY_INDEX]
+
+        # Add one to the number of times
+        # the husband has been married.
+        husband_list = people_dict[husband_key]
+        husband_list[NUM_MARRIAGES_INDEX] += 1
+
+        # Add one to the number of times
+        # the wife has been married.
+        wife_list = people_dict[wife_key]
+        wife_list[NUM_MARRIAGES_INDEX] += 1
+
+    # For each person in the people dictionary, print the
+    # person's name and number of times that person married.
+    for person_key, person_list in people_dict.items():
+        name = person_list[NAME_INDEX]
+        num_marriages = person_list[NUM_MARRIAGES_INDEX]
+        print(name, num_marriages)
+
+
+# If this file was executed like this:
+# > python teach_solution.py
+# then call the main function. However, if this file
+# was simply imported, then skip the call to main.
+if __name__ == "__main__":
+    main()
+
+        
+family_ties.py
+#Make a a family text file 
+
+import csv
+
+family = [
+
+    {'givenname': 'Marilee', 'surnames': 'Beh', 'parent': 'The grandma', 'relationship': 'Mom/grandma', 'birthday': '1957-11-12'}, 
+    {'givenname': 'Gordon', 'surnames': 'Beh', 'parent': 'The grandpa', 'relationship': 'father/grandpa', 'birthday': '1952-07-16'},
+    {'givenname': 'Casey', 'surnames': 'Hyatt', 'parent': 'Marilee Beh', 'relationship': 'half-sister', 'birthday': '1978-11-01'},
+    {'givenname': 'Jared', 'surnames': 'Beh', 'parent': 'Marilee Beh', 'relationship': 'brother', 'birthday': '1981-04-23'},
+    {'givenname': 'Hope', 'surnames': 'Orton', 'parent': 'Marilee Beh', 'relationship': 'sister', 'birthday': '1982-12-31'},
+    {'givenname': 'Isaiah', 'surnames': 'Beh', 'parent': 'Marilee Beh', 'relationship': 'brother', 'birthday': '1984-12-11'},
+    {'givenname': 'Abraham', 'surnames': 'Beh', 'parent': 'Marilee Beh', 'relationship': 'brother', 'birthday': '1987-02-05'},
+    {'givenname': 'Jonathan', 'surnames': 'Beh', 'parent': 'Marilee Beh', 'relationship': 'brother', 'birthday': '1987-02-05'},
+    {'givenname': 'Isreal', 'surnames': 'Beh', 'parent': 'Marilee Beh', 'relationship': 'brother', 'birthday': '1988-08-25'},
+    {'givenname': 'Katherine', 'surnames': 'Magistri', 'parent': 'Marilee Beh', 'relationship': 'self', 'birthday': '1989-10-10'},
+    {'givenname': 'Rachel', 'surnames': 'Beuhner', 'parent': 'Marilee Beh', 'relationship': 'sister', 'birthday': '1992-07-27'},
+    {'givenname': 'Martha', 'surnames': 'Jenkins', 'parent': 'Marilee Beh', 'relationship': 'sister', 'birthday': '1994-08-06'},
+    {'givenname': 'Mary', 'surnames': 'Lieshman', 'parent': 'Marilee Beh', 'relationship': 'sister', 'birthday': '1996-10-31'},
+    {'givenname': 'Ammon', 'surnames': 'Beh', 'parent': 'Marilee Beh', 'relationship': 'brother', 'birthday': '1998-10-03'},
+    {'givenname': 'Matthew', 'surnames': 'Beh', 'parent': 'Marilee Beh', 'relationship': 'brother', 'birthday': '2001-01-10'},
+    {'givenname': 'Mark', 'surnames': 'Beh', 'parent': 'Marilee Beh', 'relationship': 'brother', 'birthday': '2001-01-10'},
+    {'givenname': 'Roselyn', 'surnames': 'Beh', 'parent': 'Marilee Beh', 'relationship': 'sister', 'birthday': '2005-02-01'},
+    {'givenname': 'Gabriel', 'surnames': 'Beh', 'parent': 'Gordon Beh', 'relationship': 'half-brother', 'birthday': '1991-04-24'},
+    {'givenname': 'Mosiah', 'surnames': 'Beh', 'parent': 'Gordon Beh', 'relationship': 'half-brother', 'birthday': '1993-09-08'},
+    {'givenname': 'Justice', 'surnames': 'Beh', 'parent': 'Gordon Beh', 'relationship': 'half-brother', 'birthday': '1995-09-11'},
+    {'givenname': 'Alma', 'surnames': 'Beh', 'parent': 'Gordon Beh', 'relationship': 'half-brother', 'birthday': '1998-03-05'},
+    {'givenname': 'Patience', 'surnames': 'Beh', 'parent': 'Gordon Beh', 'relationship': 'half-sister', 'birthday': '2001-10-01'},
+    {'givenname': 'Hannah', 'surnames': 'Hyatt', 'parent': 'Casey Hyatt', 'relationship': 'Niece', 'birthday': '2011-03-23'},
+    {'givenname': 'Daniel', 'surnames': 'Beh', 'parent': 'Jared Beh', 'relationship': 'nephew', 'birthday': '2012-09-08'},
+    {'givenname': 'Grace', 'surnames': 'Nelson', 'parent': 'Gordon Beh', 'relationship': 'half-sister', 'birthday': '1987-07-18'},
+    {'givenname': 'Jonathan Edward', 'surnames': 'Beh', 'parent': 'Jared Beh', 'relationship': 'nephew', 'birthday': '2015-04-30'},
+    {'givenname': 'Nathaniel', 'surnames': 'Beh', 'parent': 'Jared Beh', 'relationship': 'nephew', 'birthday': '2012-11-12'},
+    {'givenname': 'Harris', 'surnames': 'Orton', 'parent': 'Hope Orton', 'relationship': 'nephew', 'birthday': '2010-10-28'},
+    {'givenname': 'Brooks', 'surnames': 'Orton', 'parent': 'Hope Orton', 'relationship': 'nephew', 'birthday': '2012-08-16'},
+    {'givenname': 'Grant', 'surnames': 'Beh', 'parent': 'Abraham Beh', 'relationship': 'nephew', 'birthday': '2007-06-11'},
+    {'givenname': 'aiden', 'surnames': 'Beh', 'parent': 'Abraham Beh', 'relationship': 'nephew', 'birthday': '2009-08-27'},
+    {'givenname': 'Allister', 'surnames': 'Magistri', 'parent': 'Katherine Magistri', 'relationship': 'Son', 'birthday': '2013-03-07'},
+    {'givenname': 'Julia', 'surnames': 'Magistri', 'parent': 'Katherine Magistri', 'relationship': 'Daughter', 'birthday': '2015-01-03'},   
+    {'givenname': 'Maggie', 'surnames': 'Magistri', 'parent': 'Katherine Magistri', 'relationship': 'Daughter', 'birthday': '2017-05-28'},   
+    {'givenname': 'Grayson', 'surnames': 'Magistri', 'parent': 'Katherine Magistri', 'relationship': 'son', 'birthday': '2021-03-31'},
+    {'givenname': 'Sawyer', 'surnames': 'Beh', 'parent': 'Jonathan Beh', 'relationship': 'nephew', 'birthday': '2015-07-29'},
+    {'givenname': 'Luke', 'surnames': 'Buehner', 'parent': 'Rachel Beuhner', 'relationship': 'nephew', 'birthday': '2015-06-18'},
+    {'givenname': 'Ruth', 'surnames': 'Buehner', 'parent': 'Rachel Buehner', 'relationship': 'niece', 'birthday': '2017-05-17'},
+    {'givenname': 'Brooklyn', 'surnames': 'Buehner', 'parent': 'Rachel Buehner', 'relationship': 'niece', 'birthday': '2019-03-29'},
+    {'givenname': 'Eve', 'surnames': 'Beuhner', 'parent': 'Rachel Buehner', 'relationship': 'niece', 'birthday': '2020-04-29'},
+    {'givenname': 'Eden', 'surnames': 'Buehner', 'parent': 'Rachel Buehner', 'relationship': 'niece', 'birthday': '2024-02-15'}
+]
+
+
+  
+
+# Create a new csv file. The mode='w' tells that you can write a new csv.
+with open('family_ties.csv', mode='w', newline='') as csvfile:
+    # Create the columns that you want.
+    fieldnames = family[0].keys()
+    # Writer object, pass in csvfile and fieldnames.
+    writer = csv.DictWriter(csvfile, fieldnames)
+    # Write our header.
+    writer.writeheader()
+    # Iterate through the document.
+    writer.writerows(family)
+
+family_ties.csv
+givenname,surnames,parent,relationship,birthday
+Marilee,Beh,The grandma,Mom/grandma,1957-11-12
+Gordon,Beh,The grandpa,father/grandpa,1952-07-16
+Casey,Hyatt,Marilee Beh,half-sister,1978-11-01
+Jared,Beh,Marilee Beh,brother,1981-04-23
+Hope,Orton,Marilee Beh,sister,1982-12-31
+Isaiah,Beh,Marilee Beh,brother,1984-12-11
+Abraham,Beh,Marilee Beh,brother,1987-02-05
+Jonathan,Beh,Marilee Beh,brother,1987-02-05
+Isreal,Beh,Marilee Beh,brother,1988-08-25
+Katherine,Magistri,Marilee Beh,self,1989-10-10
+Rachel,Beuhner,Marilee Beh,sister,1992-07-27
+Martha,Jenkins,Marilee Beh,sister,1994-08-06
+Mary,Lieshman,Marilee Beh,sister,1996-10-31
+Ammon,Beh,Marilee Beh,brother,1998-10-03
+Matthew,Beh,Marilee Beh,brother,2001-01-10
+Mark,Beh,Marilee Beh,brother,2001-01-10
+Roselyn,Beh,Marilee Beh,sister,2005-02-01
+Gabriel,Beh,Gordon Beh,half-brother,1991-04-24
+Mosiah,Beh,Gordon Beh,half-brother,1993-09-08
+Justice,Beh,Gordon Beh,half-brother,1995-09-11
+Alma,Beh,Gordon Beh,half-brother,1998-03-05
+Patience,Beh,Gordon Beh,half-sister,2001-10-01
+Hannah,Hyatt,Casey Hyatt,Niece,2011-03-23
+Daniel,Beh,Jared Beh,nephew,2012-09-08
+Grace,Nelson,Gordon Beh,half-sister,1987-07-18
+Jonathan Edward,Beh,Jared Beh,nephew,2015-04-30
+Nathaniel,Beh,Jared Beh,nephew,2012-11-12
+Harris,Orton,Hope Orton,nephew,2010-10-28
+Brooks,Orton,Hope Orton,nephew,2012-08-16
+Grant,Beh,Abraham Beh,nephew,2007-06-11
+aiden,Beh,Abraham Beh,nephew,2009-08-27
+Allister,Magistri,Katherine Magistri,Son,2013-03-07
+Julia,Magistri,Katherine Magistri,Daughter,2015-01-03
+Maggie,Magistri,Katherine Magistri,Daughter,2017-05-28
+Grayson,Magistri,Katherine Magistri,son,2021-03-31
+Sawyer,Beh,Jonathan Beh,nephew,2015-07-29
+Luke,Buehner,Rachel Beuhner,nephew,2015-06-18
+Ruth,Buehner,Rachel Buehner,niece,2017-05-17
+Brooklyn,Buehner,Rachel Buehner,niece,2019-03-29
+Eve,Beuhner,Rachel Buehner,niece,2020-04-29
+Eden,Buehner,Rachel Buehner,niece,2024-02-15
+
+
+family_ties.csv.txt
+#Make a a family text file 
+
+
+#jan,feb,mar,apr,may,jun,july,aug,sept,oct,nov,dec.
+    #make family list for the csv file
+family = [
+    {'givenname': 'Marilee', 'surnames': 'Beh', 'parent': 'The grandma', 'relationship': 'Mom/grandma', 'birthday': '11-12-1957'}, 
+    {'givenname': 'Gordon', 'surnames': 'Beh', 'parent': '', 'relationship': '', 'birthday': '07-16-1952'},
+    {'givenname': 'Casey', 'surnames': 'Hyatt', 'parent': 'Marilee Beh', 'relationship': 'half-sister', 'birthday': '11-01-1978'},
+    {'givenname': 'Jared', 'surnames': 'Beh', 'parent': 'Marilee Beh', 'relationship': 'brother', 'birthday': '04-23-1981'},
+    {'givenname': 'Hope', 'surnames': 'Orton', 'parent': 'Marilee Beh', 'relationship': 'sister', 'birthday': '12-31-1982'},
+    {'givenname': 'Isaiah', 'surnames': 'Beh', 'parent': 'Marilee Beh', 'relationship': 'brother', 'birthday': '12-11-1984'},
+    {'givenname': 'Abraham', 'surnames': 'Beh', 'parent': 'Marilee Beh', 'relationship': 'brother', 'birthday': '02-05-1987'},
+    {'givenname': 'Jonathan', 'surnames': 'Beh', 'parent': 'Marilee Beh', 'relationship': 'brother', 'birthday': '02-05-1987'},
+    {'givenname': 'Isreal', 'surnames': 'Beh', 'parent': 'Marilee Beh', 'relationship': 'brother', 'birthday': '08-25-1988'},
+    {'givenname': 'Katherine', 'surnames': 'Magistri', 'parent': 'Marilee Beh', 'relationship': 'self', 'birthday': '10-10-1989'},
+    {'givenname': 'Rachel', 'surnames': 'Beuhner', 'parent': 'Marilee Beh', 'relationship': 'sister', 'birthday': '07-27-1992'},
+    {'givenname': 'Martha', 'surnames': 'Jenkins', 'parent': 'Marilee Beh', 'relationship': 'sister', 'birthday': '08-06-1994'},
+    {'givenname': 'Mary', 'surnames': 'Lieshman', 'parent': 'Marilee Beh', 'relationship': 'sister', 'birthday': '10-31-1996'},
+    {'givenname': 'Ammon', 'surnames': 'Beh', 'parent': 'Marilee Beh', 'relationship': 'brother', 'birthday': '10-03-1998'},
+    {'givenname': 'Matthew', 'surnames': 'Beh', 'parent': 'Marilee Beh', 'relationship': 'brother', 'birthday': '01-10-2001'},
+    {'givenname': 'Mark', 'surnames': 'Beh', 'parent': 'Marilee Beh', 'relationship': 'brother', 'birthday': '01-10-2001'},
+    {'givenname': 'Roselyn', 'surnames': 'Beh', 'parent': 'Marilee Beh', 'relationship': 'sister', 'birthday': '02-01-2005'},
+    {'givenname': 'Gabriel', 'surnames': 'Beh', 'parent': 'Gordon Beh', 'relationship': 'half-brother', 'birthday': '04-24-1991'},
+    {'givenname': 'Mosiah', 'surnames': 'Beh', 'parent': 'Gordon Beh', 'relationship': 'half-brother', 'birthday': '09-08-1993'},
+    {'givenname': 'Justice', 'surnames': 'Beh', 'parent': 'Gordon Beh', 'relationship': 'half-brother', 'birthday': '09-11-1995'},
+    {'givenname': 'Alma', 'surnames': 'Beh', 'parent': 'Gordon Beh', 'relationship': 'half-brother', 'birthday': '03-05-1998'},
+    {'givenname': 'Patience', 'surnames': 'Beh', 'parent': 'Gordon Beh', 'relationship': 'half-sister', 'birthday': '10-01-2001'},
+    {'givenname': 'Hannah', 'surnames': 'Hyatt', 'parent': 'Casey Hyatt', 'relationship': 'Niece', 'birthday': '03-23-2011'},
+    {'givenname': 'Daniel', 'surnames': 'Beh', 'parent': 'Jared Beh', 'relationship': 'nephew', 'birthday': '09-08-2012'},
+    {'givenname': 'Grace', 'surnames': 'Nelson', 'parent': 'Gordon Beh', 'relationship': 'half-sister', 'birthday': '07-18-1987'},
+    {'givenname': 'Jonathan Edward', 'surnames': 'Beh', 'parent': 'Jared Beh', 'relationship': 'nephew', 'birthday': '04-30-2015'},
+    {'givenname': 'Nathaniel', 'surnames': 'Beh', 'parent': 'Jared Beh', 'relationship': 'nephew', 'birthday': '11-12-2012'},
+    {'givenname': 'Harris', 'surnames': 'Orton', 'parent': 'Hope Orton', 'relationship': 'nephew', 'birthday': '10-28-2010'},
+    {'givenname': 'Brooks', 'surnames': 'Orton', 'parent': 'Hope Orton', 'relationship': 'nephew', 'birthday': '08-16-2012'},
+    {'givenname': 'Grant', 'surnames': 'Beh', 'parent': 'Abraham Beh', 'relationship': 'nephew', 'birthday': '06-11-2007'},
+    {'givenname': 'aiden', 'surnames': 'Beh', 'parent': 'Abraham Beh', 'relationship': '', 'birthday': ''},
+    {'givenname': 'Allister', 'surnames': 'Magistri', 'parent': 'Katherine Magistri', 'relationship': 'Son', 'birthday': '03-07-2013'}
+    {'givenname': 'Julia', 'surnames': 'Magistri', 'parent': 'Katherine Magistri', 'relationship': 'Daughter', 'birthday': '01-03-2015'}   
+    {'givenname': 'Maggie', 'surnames': ''Magistri, 'parent': 'Katherine Magistri', 'relationship': 'Daughter', 'birthday': '05-28-2017'}   
+    {'givenname': 'Grayson', 'surnames': 'Magistri', 'parent': 'Katherine Magistri', 'relationship': 'son', 'birthday': '03-31-2021'}   
+    {'givenname': 'Sawyer', 'surnames': 'Beh', 'parent': 'Jonathan Beh', 'relationship': 'nephew', 'birthday': '07-29-2015'}
+    {'givenname': 'Luke', 'surnames': 'Buehner', 'parent': 'Rachel Beuhner', 'relationship': 'nephew', 'birthday': '06-18-2015'}
+    {'givenname': 'Ruth', 'surnames': 'Buehner', 'parent': 'Rachel Buehner', 'relationship': 'niece', 'birthday': '05-17-2017'} 
+    {'givenname': 'Brooklyn', 'surnames': 'Buehner', 'parent': 'Rachel Buehner', 'relationship': 'niece', 'birthday': '03-29-2019'} 
+    {'givenname': 'Eve', 'surnames': 'Beuhner', 'parent': 'Rachel Buehner', 'relationship': 'niece', 'birthday': ''}  
+    {'givenname': 'Eden', 'surnames': 'Buehner', 'parent': 'Rachel Buehner', 'relationship': 'niece', 'birthday': ''}  
+
+
+
+
+]
+# Create a new csv file.
+# The mode='w' tells that you can write a new csv.
+with open('family_ties.csv', mode='w', newline='') as csvfile:
+    # Create the columns that you want  
+    fieldnames = family[0].keys()
+    # Writer object, pass in csvfile and fieldnames
+    writer = csv.DictWriter(csvfile, fieldnames)
+    # Write the header 
+    writer.writeheader()
+    # Iterate through the document
+    writer.writerows(family)
+#Create a new csv file. # the mode='w' tells that you can write a new csv.
+with open ('family_ties.csv',mode='w',newline='') as csvfile:
+    #create the columns that you want  
+    feildnames= family[0].keys
+    #writer object, pass in csvfile and feildnames
+    writer=csv.DictWriter(csvfile,feildnames)
+    #write our header 
+    writer.writeheader()
+    #iterates through the document
+    writer.writerows(family)
+
+  
+
+family_ties.py
+#Program that takes from a text file with family info. Allows me to sort family members by birthday,
+# Parent, sibling, half sibling, and allows user input to add info to the family txt info. 
+#import the csv files family_ties.csv
+import csv
+
+# family_ties.csv has five elements make index to call each
+GIVENNAME_INDEX=0
+SURNAME_INDEX=1
+PARENT_INDEX=2
+RELATIONSHIP_INDEX=3
+BIRTHDAY_INDEX=4
+
+def main():
+    try:
+        family_list=read_compound_list("family_ties.csv")
+        print("My Family Info")
+        #iterate through the list.
+        for person in family_list:
+            print(family_list)
+            print()
+
+        #call the family keys to use 
+        #birth_date = lambda family:family [BIRTHDAY_INDEX]
+        given_name=lambda family_list: family_list [GIVENNAME_INDEX]
+        month_day=lambda family_list: family_list[BIRTHDAY_INDEX]
+        sur_name= lambda family_list:family_list[SURNAME_INDEX]
+        parent_name=lambda family_list:family_list[PARENT_INDEX]
+
+        # Sort the list of countries by family info
+        #sorted_list = sorted(family_list, key=birth_date)
+        sorted_names=sorted(family_list, key=given_name)
+        sorted_days=sorted(family_list,key=month_day)
+        sorted_last=sorted(family_list, key=sur_name )
+        sorted_parent=sorted(family_list, key=parent_name)
+
+     #print the sorted lists 
+        print("List of family sorted by birthdate (Oldest to Youngest)")
+       # print(sorted_list)
+        print()
+        print("List of Given names sorted:")
+        print (sorted_names)
+        print()
+        print ("list sorted by month and day and not year:")
+        print()
+        print("List of Birthdays in each month")
+        print(sorted_days)
+        print()
+        print("Sorted by last names")
+        print(sorted_last)
+        print()
+        print("Sorted by Parent")
+        print(sorted_parent)
+        # Get info that you want about the person
+        # Get the name of the family member and the info key from the user
+        person_name = input("Enter the name of the family member: ")
+        info_key = input("Please enter the type of info you want to access: ")
+
+        # Find the person in the family list
+        person_info = None
+        for person in family_list:
+            if person[GIVENNAME_INDEX].lower() == person_name.lower():
+               person_info = person
+
+        # Check if the person exists in the family list
+            #Changed this like four times
+            #also you have to just use the first name to look people up.
+        if person_info:
+            if info_key.lower() == "birthday":
+                info_index = BIRTHDAY_INDEX
+            elif info_key.lower() == "relationship":
+                info_index = RELATIONSHIP_INDEX
+            elif info_key == "parent":
+                info_index = PARENT_INDEX
+            elif info_key == "surname":
+                info_index = SURNAME_INDEX
+            else:
+                print("Invalid info key. Please enter birthday, relationship, parent, surname")   
+
+            #check if the info_index is in the person info
+            if info_index <len (person_info):
+                print (f"Here is the {info_key} information for {person_name}: {person_info[info_index]}")
+            else:
+                print(f"{info_key.capitalize()} information not available for {person_name}")
+        else:
+            print(f"Sorry {person_name} not found in the family list.")
+        #call the ability to add new family member information
+        new_person_info=input("Add New Family member and their info First Name, Last Name,parent,relationship,birthday:")
+        add_new("family_ties.csv", family_list,new_person_info)
+        # Call count_family function to get the counts of males and females
+        num_males=count_family("family_ties.csv", family_list)
+        num_females = count_family("family_ties.csv", family_list)
+        # Print the counts of males and females
+        print("Number of males in the family:", num_males)
+        print("Number of females in the family:", num_females)
+        num_nephews=count_family ("family_ties.csv", family_list)
+        num_nieces=count_family ("family_ties.csv", family_list)
+        num_sisters=count_family ("family_ties.csv", family_list)
+        num_brothers=count_family ("family_ties.csv", family_list)
+        print("Number of males in the family:",num_males)
+        print("Number of females in the family:",num_females)
+        print("Number of sisters:", num_sisters)
+        print("Number of brothers:", num_brothers)
+        print("Number of nephews:", num_nephews)
+        print("Number of nieces:", num_nieces)
+        print()
+        print()
+        print("My families birthdays!")
+        print()
+        print(family_list)
+        sort_birthdays=find_birthdays("family_ties.csv",family_list)
+        for birthday,people in sort_birthdays.items():
+            print ("Birthday",birthday)
+            for person in people:
+                print(person [GIVENNAME_INDEX])
+
+        print()
+        #call the find parent to get children grouped by parent
+       # Call find_parent to get children grouped by parent
+        parent_name = "Marilee Beh"  # Example parent name
+        children_by_parent = find_parent("family_ties.csv", family_list, parent_name, PARENT_INDEX)
+        print(f"Children of {parent_name}:")
+        for parent, children in children_by_parent.items():
+            print(f"Parent: {parent}")
+            print("Children:")
+            for child in children:
+                print(f"-{child[GIVENNAME_INDEX]}{child[SURNAME_INDEX]}")
+        print()
+        # Call find_surname to get surname based on given name
+        given_name = "Gordon"  # Example given name
+        surname = find_surname("family_ties.csv", family_list, GIVENNAME_INDEX, given_name)
+        print(f"Surname of {given_name}: {surname}")
+    except FileNotFoundError as not_found_err:
+        print (type(not_found_err). __name__, not_found_err, sep=":")
+
+        
+
+
+def read_compound_list(filename):
+
+    """Read the text from a CSV file into a compound list.
+    The compound list will contain small lists. Each small
+    list will contain the data from one row of the CSV file.
+
+    Parameter
+        filename: the name of the CSV file to read.
+    Return: the compound list
+    """
+    # Create an empty list.
+    compound_list = []
+    # Open the CSV file for reading.
+    with open(filename, "r") as csv_file:
+        # Use the csv module to create a reader
+        # object that will read from the opened file.
+        reader = csv.reader(csv_file)
+        # Process each row in the CSV file.
+        for row in reader:
+            # Append the current row at the end of the compound list.
+            compound_list.append(row)
+    return compound_list
+def add_new(filename,people_info,new_person_info):
+    #append new people to the list as they are born
+    people_info.append(new_person_info)
+def count_family(filename, people_info):
+   #So weird it says that it passes my test but then it gives error message for it? 
+    # Initialize counters for different categories
+    #c:\Users\kthrn\OneDrive\Documents\programing\programs\test_family_ties.py:66: ValueError: too many values to unpack (expected 2)
+   
+    num_males = 0
+    num_females = 0
+    num_nephews = 0
+    num_nieces = 0
+    num_brothers = 0
+    num_sisters = 0
+    
+    # Go through each person's info to get information about family members
+    for person in people_info:
+        # Extract the relationship of the person and convert it to lowercase
+        gender = person[3].lower()
+        
+        # Check if the person is male based on their relationship
+        if gender in ["nephew", "brother", "father/grandfather", "father", "uncle"]:
+            num_males += 1
+        else:
+            # If not male, consider the person as female
+            num_females += 1
+        
+        # Count the number of nephews, nieces, brothers, and sisters
+        if gender == "brother":
+            num_brothers += 1
+        elif gender == "sister":
+            num_sisters += 1
+        elif gender == "nephew":
+            num_nephews += 1
+        elif gender == "niece":
+            num_nieces += 1
+            
+    # Return the counts of family members
+    return (num_males, num_females, num_sisters, num_nieces, num_brothers, num_nephews)
+
+
+
+def find_birthdays(filename, people_info):
+    #Make a dictionary
+    birthdays = {}
+    #iterate through list
+    for person in people_info:
+        birthday = person[BIRTHDAY_INDEX]
+        #find if there is a specific birthday
+        if birthday in birthdays:
+            birthdays[birthday].append(person)
+        else:
+            birthdays[birthday] = [person]
+    return birthdays
+            
+def find_parent(filename,people_info,people_name,people_key):
+    parent_dict={}
+    #iterate over names of people
+    for people in people_info:
+     #check for he parent match
+     if people[people_key] == people_name:
+         # get the parents name
+        parent_name=people[PARENT_INDEX]
+         #return the corrisponding info
+        if parent_name not in parent_dict:
+            parent_dict[parent_name] = []
+        parent_dict[parent_name].append(people)
+    return parent_dict
+     
+    
+   
+def find_surname(filename, people_info, people_key, people_name):
+    # Iterate over names of people
+    for people in people_info:
+        # Check if people name matches the specified surname
+        if people[people_key] == people_name:
+            # Return the corresponding info
+            return people[SURNAME_INDEX]
+    # If the specified surname is not found, return a message
+    return f"Not found or {people_name}"
+
+def print_list(lst):
+    # Iterate through each element in the list
+    for item in lst:
+        # Print the current element
+        print(item)
+
+if __name__=="__main__":
+    main()
+
+formula.py
+
+class FormulaError(ValueError):
+    """FormulaError is the type of error that the parse_formula
+    function will raise if a formula is invalid.
+    """
+
+
+def parse_formula(formula, periodic_table_dict):
+    """Convert a chemical formula for a molecule into a compound
+    list that stores the quantity of atoms of each element
+    in the molecule. For example, this function will convert
+    "H2O" to [["H", 2], ["O", 1]] and
+    "PO4H2(CH2)12CH3" to [["P", 1], ["O", 4], ["H", 29], ["C", 13]]
+
+    Parameters
+        formula is a string that contains a chemical formula
+        periodic_table_dict is the compound dictionary returned
+            from make_periodic_table
+    Return: a compound list that contains chemical symbols and
+        quantities like this [["Fe", 2], ["O", 3]]
+    """
+    assert isinstance(formula, str), \
+        "wrong data type for parameter formula; " \
+        f"formula is a {type(formula)} but must be a string"
+    assert isinstance(periodic_table_dict, dict), \
+        "wrong data type for parameter periodic_table_dict; " \
+        f"periodic_table_dict is a {type(periodic_table_dict)} " \
+        "but must be a dictionary"
+
+    def parse_quant(formula, index):
+        quant = 1
+        if index < len(formula) and formula[index].isdecimal():
+            if formula[index] == "0":
+                raise FormulaError("invalid formula, "
+                    "quantity begins with zero (0), perhaps "
+                    "you meant to type capital O for Oxygen "
+                    "instead of zero", formula, index)
+            start = index
+            index += 1
+            while index<len(formula) and formula[index].isdecimal():
+                index += 1
+            quant = int(formula[start:index])
+        return quant, index
+
+    def get_quant(elem_dict, symbol):
+        return 0 if symbol not in elem_dict else elem_dict[symbol]
+
+    def parse_r(formula, index, level):
+        start_index = index
+        start_level = level
+        elem_dict = {}
+        while index < len(formula):
+            ch = formula[index]
+            if ch == "(":
+                group_dict, index = parse_r(formula,index+1,level+1)
+                quant, index = parse_quant(formula, index)
+                for symbol in group_dict:
+                    prev = get_quant(elem_dict, symbol)
+                    curr = prev + group_dict[symbol] * quant
+                    elem_dict[symbol] = curr
+            elif ch.isalpha():
+                symbol = formula[index:index+2]
+                if symbol in periodic_table_dict:
+                    index += 2
+                else:
+                    symbol = formula[index:index+1]
+                    if symbol in periodic_table_dict:
+                        index += 1
+                    else:
+                        raise FormulaError("invalid formula; "
+                            f"unknown element symbol: {symbol}",
+                            formula, index)
+                quant, index = parse_quant(formula, index)
+                prev = get_quant(elem_dict, symbol)
+                elem_dict[symbol] = prev + quant
+            elif ch == ")":
+                if level == 0:
+                    raise FormulaError("invalid formula; "
+                        "unmatched close parenthesis",
+                        formula, index)
+                level -= 1
+                index += 1
+                break
+            else:
+                if ch.isdecimal():
+                    # Decimal digit not preceded by an
+                    # element symbol or close parenthesis
+                    message = "invalid formula"
+                else:
+                    # Illegal character: [^()0-9a-zA-Z]
+                    message = "invalid formula; " + \
+                        f"illegal character: {ch}"
+                raise FormulaError(message, formula, index)
+        if level > 0 and level >= start_level:
+            raise FormulaError("invalid formula; "
+                "unmatched open parenthesis",
+                formula, start_index - 1)
+        return elem_dict, index
+
+    # Return the compound list of element symbols and
+    # quantities. Each element in the compound list
+    # will be a list in this form: ["symbol", quantity]
+    elem_dict, _ = parse_r(formula, 0, 0)
+    return list(elem_dict.items())
+
+
+fruit_sample.py
+# Copyright 2020, Brigham Young University-Idaho. All rights reserved.
+
+def main():
+    try:
+        # Create and print a list named fruit_list.
+        fruit_list = ["pear", "banana", "apple", "mango"]
+        print(f"original: {fruit_list}")
+
+        # Reverse and print the fruit_list list.
+        fruit_list.reverse()
+        print(f"reversed: {fruit_list}")
+
+        # Append "orange" to the end of the fruit_list and
+        # print the list.
+        fruit_list.append("orange")
+        print(f"append orange: {fruit_list}")
+
+        # Find where "apple" is located in the fruit_list and insert
+        # "cherry" before "apple" in the list and print the list.
+        index = fruit_list.index("apple")
+        fruit_list.insert(index, "cherry")
+        print(f"insert cherry: {fruit_list}")
+
+        # Remove "banana" from the fruit_list and print the list.
+        fruit_list.remove("banana")
+        print(f"remove banana: {fruit_list}")
+
+        # Pop (remove) the last element from the fruit_list
+        # and print the popped element and the list.
+        last = fruit_list.pop()
+        print(f"pop {last}: {fruit_list}")
+
+        # Sort and print the fruit_list.
+        fruit_list.sort()
+        print(f"sorted: {fruit_list}")
+
+        # Clear and print the fruit_list.
+        fruit_list.clear()
+        print(f"cleared: {fruit_list}")
+
+    except IndexError as index_err:
+        print(type(index_err).__name__, index_err, sep=": ")
+
+
+# If this file is executed like this:
+# > python check_solution.py
+# then call the main function. However, if this file is simply
+# imported (e.g. into a test file), then skip the call to main.
+if __name__ == "__main__":
+    main()
+
+fruit.py
+#Create a code that demonstrates object oriented programming by modifying a list. 
+
+#first define the main function 
+def main():
+    try:
+     # Create and print a list named fruit.
+     fruit_list = ["pear", "banana", "apple", "mango"]
+     print(f"original: {fruit_list}")
+     #add code to reverse the list 
+     fruit_list.reverse()
+     #print it
+     print(f"reversed list:{fruit_list}")
+     #append orange to the fruit list 
+     fruit_list.append("orange")
+     #print append list
+     print(f"append orange:{fruit_list}")
+     #Add code to find where "apple" is located in fruit_list and 
+     #insert "cherry" before "apple" in the list and print the list.
+     fruit_list.index("apple")
+     fruit_list.insert(1,"cherry")
+     print(f"Insert cherry:{fruit_list}")
+     #Add code to remove "banana" from fruit_list and print the list.
+     fruit_list.remove("banana")
+     print(f"remove banana{fruit_list}")
+     #Add code to pop the last element from fruit_list and 
+     #print the popped element and the list.
+     fruit_list.pop(-1)
+     print(f"popped last:{fruit_list}")
+     #Add code to sort and print fruit_list.
+     fruit_list.sort()
+     print(f"Sorted fruitlist:{fruit_list}")
+     #Add code to clear and print fruit_list.
+     fruit_list.clear()
+     print(f"clear list:{fruit_list}")
+    except IndexError as index_err:
+        print(type(index_err). __name__,index_err, sep=":")
+
+
+#call the main function
+if __name__=="__main__":
+    main()
+
+
+fuel_useage.py
+def main():
+    # Get an odometer value in U.S. miles from the user.
+    start_odometer_value= int(input("Please enter the start odometer value in miles:"))
+    # Get another odometer value in U.S. miles from the user.
+    end_odmeter_value=int(input("Please enter the end odometer value in miles:"))
+    # Get a fuel amount in U.S. gallons from the user.
+    fuel_in_gallons= float(input("Please enter the amount of fuel in gallons:"))
+    # Call the miles_per_gallon function and store
+    # the result in a variable named mpg.
+    mpg= miles_per_gallon(start_odometer_value, end_odmeter_value, fuel_in_gallons)
+
+    # Call the lp100k_from_mpg function to convert the
+    # miles per gallon to liters per 100 kilometers and
+    # store the result in a variable named lp100k.
+    lp100k = lp100k_from_mpg(mpg)
+    # Display the results for the user to see.
+    print(f"{mpg:.1f} Miles Per Gallon")
+    print(f"{lp100k:.1f} Liters per 100 killometers")
+
+
+def miles_per_gallon(start_odmeter_value, end_odmeter_value, fuel_in_gallons):
+    """Compute and return the average number of miles
+    that a vehicle traveled per gallon of fuel.
+
+    Parameters
+        start_miles: An odometer value in miles.
+        end_miles: Another odometer value in miles.
+        amount_gallons: A fuel amount in U.S. gallons.
+    Return: Fuel efficiency in miles per gallon.
+    """
+    miles_gone = end_odmeter_value - start_odmeter_value
+    mpg = miles_gone/ fuel_in_gallons
+    return mpg
+
+
+def lp100k_from_mpg(mpg):
+    """Convert miles per gallon to liters per 100
+    kilometers and return the converted value.
+
+    Parameter mpg: A value in miles per gallon
+    Return: The converted value in liters per 100km.
+    """
+    lp100k=235.216/mpg
+    return lp100k
+
+
+# Call the main function so that
+# this program will start executing.
+main()
+
+gui_sample.py
+# Copyright 2020, Brigham Young University-Idaho. All rights reserved.
+
+import math
+import tkinter as tk
+from tkinter import Frame, Label, Button
+from number_entry import IntEntry, FloatEntry
+
+
+def main():
+    # Create the Tk root object.
+    root = tk.Tk()
+
+    # Create the main window. In tkinter,
+    # a window is also called a frame.
+    frm_main = Frame(root)
+    frm_main.master.title("Tire Volume")
+    frm_main.pack(padx=4, pady=3, fill=tk.BOTH, expand=1)
+
+    # Call the populate_main_window function, which will add
+    # labels, text entry boxes, and buttons to the main window.
+    populate_main_window(frm_main)
+
+    # Start the tkinter loop that processes user events
+    # such as key presses and mouse button clicks.
+    root.mainloop()
+
+
+# The controls in a graphical user interface (GUI) are called widgets,
+# and each widget is an object. Because a GUI has many widgets and
+# each widget is an object, the code to make a GUI usually has many
+# variables to store the many objects. Because there are so many
+# variable names, programmers often adopt a naming convention to help
+# a programmer keep track of all the variables. One popular naming
+# convention is to type a three letter prefix in front of the names
+# of all variables that store GUI widgets, according to this list:
+#
+# frm: a frame (window) widget
+# lbl: a label widget that displays text for the user to see
+# ent: an entry widget where a user will type text or numbers
+# btn: a button widget that the user will click
+
+
+def populate_main_window(frm_main):
+    """Populate the main window of this program. In other words, put
+    the labels, text entry boxes, and buttons into the main window.
+
+    Parameter
+        frm_main: the main frame (window)
+    Return: nothing
+    """
+    # Create labels for the number entries and the result.
+    lbl_width = Label(frm_main, text="Width (80 - 300):")
+    lbl_ratio = Label(frm_main, text="Aspect Ratio (30 - 90):")
+    lbl_diam = Label(frm_main, text="Diameter (7 - 30):")
+    lbl_volume = Label(frm_main, text="Volume:")
+
+    # Create three number entries.
+    ent_width = IntEntry(frm_main, width=5, lower_bound=80, upper_bound=300)
+    ent_ratio = IntEntry(frm_main, width=5, lower_bound=30, upper_bound=90)
+    ent_diam = FloatEntry(frm_main, width=5, lower_bound=7, upper_bound=30)
+
+    # Create a label to display the result.
+    txt_volume = Label(frm_main, width=5, anchor="e")
+
+    # Create labels to display the units.
+    lbl_width_units = Label(frm_main, text="millimeters")
+    # Ratios don't have units
+    lbl_diam_units = Label(frm_main, text="inches")
+    lbl_vol_units = Label(frm_main, text="liters")
+
+    # Create the Clear button.
+    btn_clear = Button(frm_main, text="Clear")
+
+    # Layout all the labels, number entries, and buttons in a grid.
+    lbl_width.grid(      row=0, column=0, padx=3, pady=2, sticky="e")
+    ent_width.grid(      row=0, column=1, padx=3, pady=2, sticky="w")
+    lbl_width_units.grid(row=0, column=2, padx=0, pady=2, sticky="w")
+
+    lbl_ratio.grid(     row=1, column=0, padx=3, pady=2, sticky="e")
+    ent_ratio.grid(     row=1, column=1, padx=3, pady=2, sticky="w")
+    # Ratios don't have units.
+
+    lbl_diam.grid(      row=2, column=0, padx=3, pady=2, sticky="e")
+    ent_diam.grid(      row=2, column=1, padx=3, pady=2, sticky="w")
+    lbl_diam_units.grid(row=2, column=2, padx=0, pady=2, sticky="w")
+
+    lbl_volume.grid(   row=3, column=0, padx=3, pady=2, sticky="e")
+    txt_volume.grid(   row=3, column=1, padx=3, pady=2, sticky="w")
+    lbl_vol_units.grid(row=3, column=2, padx=0, pady=2, sticky="w")
+    btn_clear.grid(    row=3, column=3, padx=3, pady=2)
+
+
+    # This function is called each time the user releases a key.
+    def calculate(event):
+        """Compute the approximate volume of a tire in liters."""
+        try:
+            # Get the user input.
+            w = ent_width.get()
+            a = ent_ratio.get()
+            d = ent_diam.get()
+
+            # Compute the tire volume in liters.
+            v = (math.pi * w * w * a * (w * a + 2540 * d)) / 10_000_000_000
+
+            # Display the volume rounded to one digit
+            # after the decimal for the user to see.
+            txt_volume.config(text=f"{v:.2f}")
+
+        except ValueError:
+            # When the user deletes all the digits in one
+            # of the number entries, clear the result.
+            txt_volume.config(text="")
+
+
+    # This function is called each time
+    # the user clicks the "Clear" button.
+    def clear():
+        """Clear all the inputs and outputs."""
+        btn_clear.focus()
+        ent_width.clear()
+        ent_ratio.clear()
+        ent_diam.clear()
+        txt_volume.config(text="")
+        ent_width.focus()
+
+
+    # Bind the calculate function to the three number
+    # entries so that the calculate function will be called
+    # when the user changes the text in the number entries.
+    ent_width.bind("<KeyRelease>", calculate)
+    ent_ratio.bind("<KeyRelease>", calculate)
+    ent_diam.bind("<KeyRelease>", calculate)
+
+    # Bind the clear function to the clear button so
+    # that the clear function will be called when the
+    # user clicks the clear button.
+    btn_clear.config(command=clear)
+
+    # Give the keyboard focus to the width text field.
+    ent_width.focus()
+
+
+# If this file is executed like this:
+# > python teach_solution.py
+# then call the main function. However, if this file is simply
+# imported (e.g. into a test file), then skip the call to main.
+if __name__ == "__main__":
+    main()
+gui.py
+#copied from the heart_rate.py
+#so I can do calculations
+import math
+#import tkinter 
+import tkinter as tk
+from tkinter import Frame, Label, Button
+from number_entry import IntEntry
+#main function
+PIE_NUMBER=3.14
+def main():
+    #create a tk root oject
+    root=tk.Tk()
+    # Create the main window. In tkinter,
+    # a window is also called a frame.
+    frm_main=Frame(root)
+    root.title=("Area of a circle")
+    frm_main.pack(padx=4, pady=3, fill=tk.BOTH, expand=1)
+    # Call the populate_main_window function, which will add
+    # labels, text entry boxes, and buttons to the main window.
+    populate_main_window(frm_main)
+      # Start the tkinter loop that processes user events
+    # such as key presses and mouse button clicks.
+    root.mainloop()
+
+def populate_main_window(frm_main):
+    """Populate the main window of this program. In other words, put
+    the labels, text entry boxes, and buttons into the main window.
+
+    Parameter
+        frm_main: the main frame (window)
+    Return: nothing
+    """
+    # Create a label that displays "Pie:"
+    lbl_pie = Label(frm_main, text=f"Pie(3.14){PIE_NUMBER}")
+    lbl_radius=Label(frm_main,text="radius(20-50):")
+    lbl_squared=Label(frm_main,text="radius squared:")
+    lbl_area=Label(frm_main,text="Area of a Circle")
+   
+    # Create an integer entry box where the user will enter between input
+    ent_radius=IntEntry(frm_main, width=5,lower_bound=20,upper_bound=50)
+    
+    
+ # Create a label to display the result.
+    txt_squared=Label(frm_main,width=5,anchor="e")
+    txt_area = Label(frm_main, width=5, anchor="e")
+    
+    # Create the Clear button.
+    btn_clear = Button(frm_main, text="Clear")
+    #label area
+
+
+    # Layout all the labels, entry boxes, and buttons in a grid.
+    lbl_pie.grid(row=0, column=0, padx=3, pady=3)
+    lbl_radius.grid(row=1, column=0, padx=3, pady=3)
+    ent_radius.grid(row=1, column=1, padx=3, pady=3)
+    lbl_squared.grid(row=2, column=0, padx=3, pady=3)
+    lbl_area.grid(row=2, column=1, padx=3, pady=3)
+    txt_area.grid(row=3, column=1, padx=3, pady=3)
+    txt_squared.grid(row=3, column=0, padx=3, pady=3)
+    btn_clear.grid(row=4, column=0,columnspan=2,padx=3,pady=3,sticky="w") #Got alot of help on this
+    btn_clear.grid(row=2,column=0, padx=3, pady=3,columnspan=4,sticky="w")
+ 
+
+
+
+
+    # This function will be called each time the user releases a key.
+    def calculate(event):
+        """Compute and display the user's slowest
+        and fastest beneficial heart rates.
+        """
+        try:
+            # Get the user's age.
+            radius=float(ent_radius.get())
+            squared = radius**2
+            area= PIE_NUMBER * squared
+            txt_squared.config(text=f"{squared:.2f}")
+            txt_area.config(text=f"Area: {area:.2f}")
+            
+        except ValueError:
+            lbl_area.config(text="Area of a Circle")
+
+    # This function will be called each time
+    # the user presses the "Clear" button.
+    def clear():
+        """Clear all the inputs and outputs."""
+        btn_clear.focus()
+        ent_radius.clear()
+        txt_squared.config(text="")
+        txt_area.config(text="")
+        ent_radius.focus()
+
+    # Bind the calculate function to the age entry box so
+    # that the computer will call the calculate function
+    # when the user changes the text in the entry box.
+    ent_radius.bind("<KeyRelease>",calculate)
+
+
+    # Bind the clear function to the clear button so
+    # that the computer will call the clear function
+    # when the user clicks the clear button.
+    btn_clear.config(command=clear)
+
+    # Give the keyboard focus to the age entry box.
+    ent_radius.focus()
+
+
+#call main function 
+if __name__=="__main__":
+    main()
+
+
+
